@@ -16,6 +16,8 @@ var _mouse_rotation : Vector3
 var _rotation_input : float
 var _tilt_input : float
 
+var _current_rotation : float
+
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("exit"):
 		get_tree().quit()
@@ -29,6 +31,7 @@ func _unhandled_input(event: InputEvent) -> void:
 func _physics_process(delta: float) -> void:
 	global.debug.add_property("RealSpeed", velocity.length(), 1)
 	global.debug.add_property("RealSpeedVect", get_real_velocity(), 2)
+	#global.debug.add_property("Z tilt", CAMERA_CONTROLLER.rotation.z, 2)
 	_update_camera()
 
 func _update_camera():
@@ -38,10 +41,14 @@ func _update_camera():
 	
 	transform.basis = Basis.from_euler(Vector3(0, _mouse_rotation.y, 0))
 	CAMERA_CONTROLLER.transform.basis = Basis.from_euler(Vector3(_mouse_rotation.x, 0, 0))
+	
+	# FIX: Explicitly lock Z-rotation to 0.0 to prevent permanent tilting
 	CAMERA_CONTROLLER.rotation.z = 0.0
 	rotation.z = 0.0
+	
 	_rotation_input = 0.0
 	_tilt_input = 0.0
+
 
 func _ready() -> void:
 	global.player = self

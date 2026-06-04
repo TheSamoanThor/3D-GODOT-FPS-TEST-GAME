@@ -3,9 +3,9 @@ class_name State
 extends Node
 
 #signals communicate between scripts
-signal transition(new_state_name: StringName)
+signal transition(previous_state: StringName)
 
-func enter() -> void:
+func enter(new_state: State) -> void:
 	pass
 
 func exit() -> void:

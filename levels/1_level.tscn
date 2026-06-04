@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cohh7c24knxjt"]
 
-[ext_resource type="PackedScene" uid="uid://bq8ow52131jdw" path="res://controllers/fps_controls.tscn" id="1_plumh"]
+[ext_resource type="PackedScene" uid="uid://bq8ow52131jdw" path="res://Controllers/fps_controls.tscn" id="1_i7jyh"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_heknc"]
 
@@ -128,7 +128,7 @@ material = SubResource("StandardMaterial3D_q1tvk")
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1382021477]
 environment = SubResource("Environment_plumh")
 
-[node name="CharacterBody3D" parent="." unique_id=179219016 instance=ExtResource("1_plumh")]
+[node name="CharacterBody3D" parent="." unique_id=179219016 instance=ExtResource("1_i7jyh")]
 
 [node name="LevelObjects" type="Node3D" parent="." unique_id=1893136362]
 

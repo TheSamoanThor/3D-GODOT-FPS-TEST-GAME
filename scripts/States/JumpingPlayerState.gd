@@ -8,7 +8,7 @@ extends PlayerMovementState
 @export var MAX_JUMPS : int = 2 # Total allowed jumps (1 = normal jump, 2 = double jump)
 var current_jump_count : int = 0
 
-func enter() -> void:
+func enter(previous_state) -> void:
 	# Reset the counter and perform the first initial jump
 	current_jump_count = 1
 	perform_jump()
@@ -27,6 +27,7 @@ func update(delta: float) -> void:
 	
 	# Transition back to ground states when landing
 	if PLAYER.is_on_floor():
+		coyote_timer = 0.0 
 		var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
 		if input_dir.length() > 0.0:
 			if Input.is_action_pressed("sprint"):

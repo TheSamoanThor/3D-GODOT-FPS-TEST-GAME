@@ -1,7 +1,7 @@
 class_name IdlePlayerState
 extends PlayerMovementState
 
-func enter() -> void:
+func enter(previous_state) -> void:
 	ANIMATION.pause()
 
 func update(delta: float) -> void:
@@ -13,5 +13,7 @@ func update(delta: float) -> void:
 	var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
 	if input_dir.length() > 0.0 and PLAYER.is_on_floor():
 		transition.emit("WalkingPlayerState")
+	if Input.is_action_just_pressed("crouch") and PLAYER.is_on_floor():
+		transition.emit("CrouchingPlayerState")
 	if Input.is_action_just_pressed("jump") and PLAYER.is_on_floor():
 		transition.emit("JumpingPlayerState")
