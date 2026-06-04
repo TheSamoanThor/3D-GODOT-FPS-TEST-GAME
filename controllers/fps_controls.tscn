@@ -8,6 +8,7 @@
 [ext_resource type="Script" uid="uid://l57734mymfss" path="res://scripts/IdlePlayerState.gd" id="6_dma5w"]
 [ext_resource type="Script" uid="uid://db6ung184i0qc" path="res://scripts/WalkingPlayerState.gd" id="7_hwntv"]
 [ext_resource type="Script" uid="uid://dkf086rsofrjq" path="res://scripts/SprintingPlayerState.gd" id="8_4vovg"]
+[ext_resource type="Script" uid="uid://cia8h8sbqnntt" path="res://scripts/JumpingPlayerState.gd" id="9_uuy3c"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_7aj5b"]
 
@@ -322,6 +323,10 @@ script = ExtResource("7_hwntv")
 
 [node name="SprintingPlayerState" type="Node" parent="PlayerStateMachine" unique_id=124868171]
 script = ExtResource("8_4vovg")
+metadata/_custom_type_script = "uid://br1dclvx7b383"
+
+[node name="JumpingPlayerState" type="Node" parent="PlayerStateMachine" unique_id=878406489]
+script = ExtResource("9_uuy3c")
 metadata/_custom_type_script = "uid://br1dclvx7b383"
 
 [connection signal="animation_started" from="AnimationPlayer" to="." method="_on_animation_player_animation_started"]

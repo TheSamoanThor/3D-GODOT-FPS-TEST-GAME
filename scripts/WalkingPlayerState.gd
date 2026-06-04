@@ -15,14 +15,16 @@ func update(delta: float) -> void:
 	PLAYER.update_velocity()
 	set_anim_speed(PLAYER.velocity.length())
 	
+	# Transition to Idle if player stops moving
 	if PLAYER.velocity.length() == 0.0:
 		transition.emit("IdlePlayerState")
+		
+	# OPTIMIZATION: Check for sprint input inside the physics update loop
+	if Input.is_action_pressed("sprint") and PLAYER.is_on_floor():
+		transition.emit("SprintingPlayerState")
+	if Input.is_action_just_pressed("jump") and PLAYER.is_on_floor():
+		transition.emit("JumpingPlayerState")
 
 func set_anim_speed(spd: float) -> void:
-	# Calculates animation speed scale based on current state's max speed
 	var alpha = remap(spd, 0.0, SPEED, 0.0, 1.0)
 	ANIMATION.speed_scale = lerp(0.0, TOP_ANIM_SPEED, alpha)
-
-func _input(event: InputEvent) -> void:
-	if event.is_action_pressed("sprint") and PLAYER.is_on_floor():
-		transition.emit("SprintingPlayerState")

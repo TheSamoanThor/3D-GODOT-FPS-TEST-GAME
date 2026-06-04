@@ -118,7 +118,7 @@ emission_enabled = true
 emission = Color(1, 1, 1, 1)
 emission_energy_multiplier = 10.0
 
-[sub_resource type="SphereMesh" id="SphereMesh_yainb"]
+[sub_resource type="SphereMesh" id="SphereMesh_plumh"]
 material = SubResource("StandardMaterial3D_q1tvk")
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_v6gf6"]
@@ -249,16 +249,14 @@ transform = Transform3D(1.0000001, 0, -7.450581e-09, -1.8544246e-09, 1, 1.748049
 mesh = SubResource("BoxMesh_prnk2")
 
 [node name="LightSphere" type="StaticBody3D" parent="LevelObjects" unique_id=1220713533]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, 0)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="LevelObjects/LightSphere" unique_id=1569414845]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8, 0)
-mesh = SubResource("SphereMesh_yainb")
+mesh = SubResource("SphereMesh_plumh")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="LevelObjects/LightSphere" unique_id=242236349]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8, 0)
 shape = SubResource("SphereShape3D_v6gf6")
 
 [node name="OmniLight3D" type="OmniLight3D" parent="LevelObjects/LightSphere" unique_id=51104545]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8.001812, 0)
 light_energy = 8.0
 omni_range = 26.0
