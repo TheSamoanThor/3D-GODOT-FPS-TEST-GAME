@@ -11,6 +11,7 @@ var current_jump_count : int = 0
 func enter(previous_state) -> void:
 	# Reset the counter and perform the first initial jump
 	current_jump_count = 1
+	ANIMATION.play("jumpStart")
 	perform_jump()
 
 func update(delta: float) -> void:
@@ -27,6 +28,7 @@ func update(delta: float) -> void:
 	
 	# Transition back to ground states when landing
 	if PLAYER.is_on_floor():
+		ANIMATION.play("jumpEnd")
 		coyote_timer = 0.0 
 		var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
 		if input_dir.length() > 0.0:

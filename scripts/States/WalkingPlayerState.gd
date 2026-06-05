@@ -7,6 +7,8 @@ extends PlayerMovementState
 @export var TOP_ANIM_SPEED : float = 2.2
 
 func enter(previous_state) -> void:
+	if ANIMATION.is_playing() and ANIMATION.current_animation == "jumpEnd":
+		await ANIMATION.animation_finished
 	ANIMATION.play('walking', -1.0, 1.0)
 	
 func exit() -> void:
@@ -48,5 +50,12 @@ func update(delta: float) -> void:
 			return
 
 func set_anim_speed(spd: float) -> void:
+	# If the AnimationPlayer is still blending or processing 'jumpEnd',
+	# do NOT override the speed_scale with locomotion speed. Keep it normal (1.0).
+	if ANIMATION.current_animation == "jumpEnd":
+		ANIMATION.speed_scale = 1.0
+		return
+		
+	# Otherwise, scale walking/sprinting pace normally
 	var alpha = remap(spd, 0.0, SPEED, 0.0, 1.0)
 	ANIMATION.speed_scale = lerp(0.0, TOP_ANIM_SPEED, alpha)

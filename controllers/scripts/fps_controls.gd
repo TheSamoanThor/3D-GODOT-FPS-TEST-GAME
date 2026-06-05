@@ -31,6 +31,8 @@ func _unhandled_input(event: InputEvent) -> void:
 func _physics_process(delta: float) -> void:
 	global.debug.add_property("RealSpeed", velocity.length(), 1)
 	global.debug.add_property("RealSpeedVect", get_real_velocity(), 2)
+	global.debug.add_property("Animation", ANIMATIONPLAYER.current_animation, 2)
+	global.debug.add_property("Rotation", rotation, 2)
 	#global.debug.add_property("Z tilt", CAMERA_CONTROLLER.rotation.z, 2)
 	_update_camera()
 
@@ -63,7 +65,6 @@ func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	if CROUCH_SHAPECAST != null:
 		CROUCH_SHAPECAST.add_exception(self)
-
 
 func update_gravity(delta: float) -> void:
 	velocity += get_gravity() * delta
