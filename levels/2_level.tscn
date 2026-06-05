@@ -1,0 +1,147 @@
+[gd_scene format=3 uid="uid://hogq1jquesk8"]
+
+[ext_resource type="PackedScene" uid="uid://bq8ow52131jdw" path="res://Controllers/fps_controls.tscn" id="1_cvdc1"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_5mmbs"]
+sky_top_color = Color(0.13296726, 0.55617094, 0.9732782, 1)
+sky_horizon_color = Color(0.8616754, 0.5866539, 0.3130696, 1)
+
+[sub_resource type="Sky" id="Sky_cvdc1"]
+sky_material = SubResource("ProceduralSkyMaterial_5mmbs")
+
+[sub_resource type="Environment" id="Environment_gmgar"]
+background_mode = 2
+sky = SubResource("Sky_cvdc1")
+ssr_enabled = true
+ssao_enabled = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5mmbs"]
+albedo_color = Color(0.20794028, 0.22899461, 0.26102456, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_cvdc1"]
+material = SubResource("StandardMaterial3D_5mmbs")
+size = Vector3(25, 1, 50)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_cvdc1"]
+size = Vector3(25, 1, 50)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_gmgar"]
+size = Vector3(25, 1, 50)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cvdc1"]
+albedo_color = Color(1, 0.5254902, 0, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_gmgar"]
+material = SubResource("StandardMaterial3D_cvdc1")
+size = Vector3(25, 10, 5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_roek1"]
+size = Vector3(25, 10, 5)
+
+[sub_resource type="BoxMesh" id="BoxMesh_roek1"]
+material = SubResource("StandardMaterial3D_cvdc1")
+size = Vector3(5, 10, 25)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_46idm"]
+size = Vector3(5, 10, 25)
+
+[sub_resource type="BoxMesh" id="BoxMesh_46idm"]
+material = SubResource("StandardMaterial3D_cvdc1")
+size = Vector3(5, 10, 25)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_0mpr0"]
+size = Vector3(5, 10, 25)
+
+[sub_resource type="BoxMesh" id="BoxMesh_0mpr0"]
+material = SubResource("StandardMaterial3D_cvdc1")
+size = Vector3(20, 2, 2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wh3uu"]
+size = Vector3(20, 2, 2)
+
+[node name="Node3D" type="Node3D" unique_id=1779815470]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=894783931]
+environment = SubResource("Environment_gmgar")
+
+[node name="CharacterBody3D" parent="." unique_id=179219016 instance=ExtResource("1_cvdc1")]
+
+[node name="LevelObjects" type="Node3D" parent="." unique_id=1604180862]
+
+[node name="FloorPlatform1" type="StaticBody3D" parent="LevelObjects" unique_id=1612663489]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="LevelObjects/FloorPlatform1" unique_id=833395137]
+mesh = SubResource("BoxMesh_cvdc1")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LevelObjects/FloorPlatform1" unique_id=1637250832]
+shape = SubResource("BoxShape3D_cvdc1")
+
+[node name="FloorPlatform2" type="StaticBody3D" parent="LevelObjects" unique_id=1983854717]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -50)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="LevelObjects/FloorPlatform2" unique_id=1532846655]
+mesh = SubResource("BoxMesh_cvdc1")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LevelObjects/FloorPlatform2" unique_id=855816747]
+shape = SubResource("BoxShape3D_gmgar")
+
+[node name="Wall" type="StaticBody3D" parent="LevelObjects" unique_id=730346028]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 22.5)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="LevelObjects/Wall" unique_id=100040429]
+mesh = SubResource("BoxMesh_gmgar")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LevelObjects/Wall" unique_id=1462145987]
+shape = SubResource("BoxShape3D_roek1")
+
+[node name="Wall2" type="StaticBody3D" parent="LevelObjects" unique_id=1319729491]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 5, 7.5)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="LevelObjects/Wall2" unique_id=1386413842]
+mesh = SubResource("BoxMesh_roek1")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LevelObjects/Wall2" unique_id=348243681]
+shape = SubResource("BoxShape3D_46idm")
+
+[node name="Wall3" type="StaticBody3D" parent="LevelObjects" unique_id=57105248]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 5, 7.5)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="LevelObjects/Wall3" unique_id=707348932]
+mesh = SubResource("BoxMesh_46idm")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LevelObjects/Wall3" unique_id=942181259]
+shape = SubResource("BoxShape3D_0mpr0")
+
+[node name="Wall4" type="StaticBody3D" parent="LevelObjects" unique_id=1948414789]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 5, -17.5)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="LevelObjects/Wall4" unique_id=1140297220]
+mesh = SubResource("BoxMesh_roek1")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LevelObjects/Wall4" unique_id=236191150]
+shape = SubResource("BoxShape3D_46idm")
+
+[node name="Wall5" type="StaticBody3D" parent="LevelObjects" unique_id=1236143401]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 5, -17.5)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="LevelObjects/Wall5" unique_id=1890447527]
+mesh = SubResource("BoxMesh_roek1")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LevelObjects/Wall5" unique_id=312535590]
+shape = SubResource("BoxShape3D_46idm")
+
+[node name="HorisontalColumn" type="StaticBody3D" parent="LevelObjects" unique_id=1775325889]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -10)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="LevelObjects/HorisontalColumn" unique_id=921721137]
+mesh = SubResource("BoxMesh_0mpr0")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LevelObjects/HorisontalColumn" unique_id=719483927]
+shape = SubResource("BoxShape3D_wh3uu")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="LevelObjects" unique_id=233319307]
+transform = Transform3D(1, 0, 0, 0, 0.70710677, 0.70710677, 0, -0.70710677, 0.70710677, 0, 15, 25)
+shadow_enabled = true
+shadow_blur = 0.0
+sky_mode = 1

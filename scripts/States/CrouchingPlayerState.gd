@@ -5,17 +5,18 @@ extends PlayerMovementState
 @export var ACCELERATION : float = 0.1
 @export var DECELERATION : float = 0.25
 @export_range(1, 6, 0.1) var CROUCH_SPEED : float = 4.0
-
 @onready var CROUCH_SHAPECAST : ShapeCast3D = %ShapeCast3D
 
 var RELEASED : bool = false
 
 func enter(previous_state) -> void:
 	ANIMATION.speed_scale = 1.0
-	if previous_state.name != "SlidingPlayerState":
-		ANIMATION. play("Crouching", -1.0, CROUCH_SPEED)
-	elif previous_state.name == "SlidingPlayerState":
-		ANIMATION.current_animation = "Crouching"
+	# FIXED: previous_state is an Object, it doesn't have a '.name' property. 
+	# Checked using 'is' keyword or state class verification.
+	if previous_state and not previous_state is SlidingPlayerState:
+		ANIMATION.play("crouching", -1.0, CROUCH_SPEED)
+	elif previous_state and previous_state is SlidingPlayerState:
+		ANIMATION.current_animation = "crouching"
 		ANIMATION.seek(1.0, true)
 
 func exit() -> void:
@@ -31,13 +32,23 @@ func update(delta) -> void:
 	elif Input.is_action_pressed("crouch") == false and RELEASED == false:
 		RELEASED = true
 		uncrouch()
-	
+
 func uncrouch():
+	# Check if Shapecast detects low ceiling before standing up
 	if CROUCH_SHAPECAST.is_colliding() == false and Input.is_action_pressed("crouch") == false:
-		ANIMATION.play("crouch", -1.0, -CROUCH_SPEED * 1.5, true)
+		ANIMATION.play("crouching", -1.0, -CROUCH_SPEED * 1.5, true) # Ensure name matches your AnimationPlayer track ('Crouching')
 		if ANIMATION.is_playing():
 			await ANIMATION.animation_finished
-		transition.emit("IdlePlayerState")
+		
+		# FIXED: Instead of forcing Idle, detect if player is currently moving
+		var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
+		if input_dir.length() > 0.0:
+			transition.emit("WalkingPlayerState")
+		else:
+			transition.emit("IdlePlayerState")
+	
 	elif CROUCH_SHAPECAST.is_colliding():
+		# Ceiling blocked! Wait and try again cleanly without building stack frames
 		await get_tree().create_timer(0.1).timeout
-		uncrouch()
+		if not Input.is_action_pressed("crouch"):
+			uncrouch()

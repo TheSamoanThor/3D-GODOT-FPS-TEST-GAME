@@ -118,7 +118,7 @@ emission_enabled = true
 emission = Color(1, 1, 1, 1)
 emission_energy_multiplier = 10.0
 
-[sub_resource type="SphereMesh" id="SphereMesh_plumh"]
+[sub_resource type="SphereMesh" id="SphereMesh_i7jyh"]
 material = SubResource("StandardMaterial3D_q1tvk")
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_v6gf6"]
@@ -252,11 +252,14 @@ mesh = SubResource("BoxMesh_prnk2")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, 0)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="LevelObjects/LightSphere" unique_id=1569414845]
-mesh = SubResource("SphereMesh_plumh")
+mesh = SubResource("SphereMesh_i7jyh")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="LevelObjects/LightSphere" unique_id=242236349]
 shape = SubResource("SphereShape3D_v6gf6")
 
 [node name="OmniLight3D" type="OmniLight3D" parent="LevelObjects/LightSphere" unique_id=51104545]
-light_energy = 8.0
+light_energy = 5.0
+shadow_enabled = true
+shadow_blur = 0.0
+distance_fade_enabled = true
 omni_range = 26.0

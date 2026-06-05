@@ -61,12 +61,12 @@ albedo_color = Color(0, 0, 0, 1)
 material = SubResource("StandardMaterial3D_0l87g")
 size = Vector3(20, 1, 15)
 
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_xm2q8"]
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_yihgt"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_a0tk4"]
 albedo_color = Color(1, 0, 0, 1)
 
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_4xowi"]
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_0a5e8"]
 material = SubResource("StandardMaterial3D_a0tk4")
 
 [node name="Node3D" type="Node3D" unique_id=841598187]
@@ -145,9 +145,9 @@ mesh = SubResource("BoxMesh_cc0kr")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1, -5)
 
 [node name="CollisionShape3D4" type="CollisionShape3D" parent="LebelObjects/Capsule" unique_id=951564349]
-shape = SubResource("CapsuleShape3D_xm2q8")
+shape = SubResource("CapsuleShape3D_yihgt")
 
 [node name="Capsule" type="MeshInstance3D" parent="LebelObjects/Capsule" unique_id=241187851]
-mesh = SubResource("CapsuleMesh_4xowi")
+mesh = SubResource("CapsuleMesh_0a5e8")
 
 [node name="CharacterBody3D" parent="." unique_id=179219016 instance=ExtResource("1_yihgt")]

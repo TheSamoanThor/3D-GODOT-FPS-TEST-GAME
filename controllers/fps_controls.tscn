@@ -14,7 +14,6 @@
 [ext_resource type="Script" uid="uid://ccmyhvowpaub3" path="res://Scripts/States/SlidingPlayerState.gd" id="12_vgucd"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_7aj5b"]
-radius = 0.0005
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_34evc"]
 
@@ -367,7 +366,7 @@ tracks/2/keys = {
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_f1558"]
 _data = {
 &"RESET": SubResource("Animation_f1558"),
-&"crouch": SubResource("Animation_7aj5b"),
+&"crouching": SubResource("Animation_7aj5b"),
 &"sliding": SubResource("Animation_vgucd"),
 &"sprinting": SubResource("Animation_4vovg"),
 &"walking": SubResource("Animation_hwntv")

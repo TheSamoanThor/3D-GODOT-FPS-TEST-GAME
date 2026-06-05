@@ -8,7 +8,7 @@ class_name Player extends CharacterBody3D
 
 @export var CAMERA_CONTROLLER : Camera3D
 @export var ANIMATIONPLAYER : AnimationPlayer
-@export var CROUCH_SHAPECAST : Node3D
+@export var CROUCH_SHAPECAST : ShapeCast3D
 
 var _speed : float
 var _mouse_input : bool = false
@@ -39,11 +39,15 @@ func _update_camera():
 	_mouse_rotation.x = clamp(_mouse_rotation.x, TILT_LOWER_LIMIT, TILT_UPPER_LIMIT)
 	_mouse_rotation.y += _rotation_input
 	
+	# FIXED: Cache the rotation input so other states can read it before reset
+	_current_rotation = _rotation_input
+	
 	transform.basis = Basis.from_euler(Vector3(0, _mouse_rotation.y, 0))
 	CAMERA_CONTROLLER.transform.basis = Basis.from_euler(Vector3(_mouse_rotation.x, 0, 0))
 	
-	# FIX: Explicitly lock Z-rotation to 0.0 to prevent permanent tilting
-	CAMERA_CONTROLLER.rotation.z = 0.0
+	# WARNING: Do NOT explicitly force CAMERA_CONTROLLER.rotation.z = 0.0 here
+	# if you want animation track keys (tilting) to work smoothly. 
+	# The AnimationPlayer will override it, but it's cleaner to handle reset in exit()
 	rotation.z = 0.0
 	
 	_rotation_input = 0.0

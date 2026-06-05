@@ -9,7 +9,7 @@ extends PlayerMovementState
 @onready var CROUCH_SHAPECAST : ShapeCast3D = %ShapeCast3D
 
 func enter(previous_state) -> void:
-	set_tilt(PLAYER._rotation_input) # Fixed variable name to match mouse controller
+	set_tilt(PLAYER._current_rotation)
 	
 	# SAFE APPROACH: Dynamically find the track index instead of hardcoding "4"
 	var anim = ANIMATION.get_animation("sliding")
