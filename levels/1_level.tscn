@@ -10,11 +10,8 @@ sky_material = SubResource("ProceduralSkyMaterial_heknc")
 [sub_resource type="Environment" id="Environment_plumh"]
 background_mode = 2
 sky = SubResource("Sky_plumh")
-ambient_light_energy = 8.0
 ssao_enabled = true
 glow_enabled = true
-fog_enabled = true
-fog_density = 0.0043
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_0hoct"]
 size = Vector3(50, 1, 30)
