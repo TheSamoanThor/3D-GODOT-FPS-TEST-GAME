@@ -3,6 +3,7 @@ extends State
 
 var PLAYER: Player
 var ANIMATION: AnimationPlayer
+var WEAPON : WeaponController
 
 # Coyote Time settings
 var coyote_timer: float = 0.0
@@ -12,6 +13,7 @@ func _ready() -> void:
 	await owner.ready
 	PLAYER = owner as Player
 	ANIMATION = PLAYER.ANIMATIONPLAYER
+	WEAPON = PLAYER.WEAPON_CONTROLLER
 
 # Helper to process coyote time ticks
 func process_coyote_time(delta: float) -> void:

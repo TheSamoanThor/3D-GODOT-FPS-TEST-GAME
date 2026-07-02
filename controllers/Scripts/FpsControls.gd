@@ -9,6 +9,7 @@ class_name Player extends CharacterBody3D
 @export var CAMERA_CONTROLLER : Camera3D
 @export var ANIMATIONPLAYER : AnimationPlayer
 @export var CROUCH_SHAPECAST : ShapeCast3D
+@export var WEAPON_CONTROLLER : WeaponController
 
 var _speed : float
 var _mouse_input : bool = false

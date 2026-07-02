@@ -6,6 +6,9 @@ extends PlayerMovementState
 @export var DECELERATION : float = 0.25
 @export_range(1, 6, 0.1) var CROUCH_SPEED : float = 4.0
 @onready var CROUCH_SHAPECAST : ShapeCast3D = %ShapeCast3D
+@export var WEAPON_BOB_SPD : float = 2.0
+@export var WEAPON_BOB_HORIS : float = 1.0
+@export var WEAPON_BOB_VERT : float = 0.5
 
 var RELEASED : bool = false
 
@@ -26,6 +29,9 @@ func update(delta) -> void:
 	PLAYER.update_gravity(delta)
 	PLAYER.update_input(SPEED, ACCELERATION, DECELERATION)
 	PLAYER.update_velocity()
+	
+	WEAPON.sway_weapon(delta, false)
+	WEAPON._weapon_bob(delta, WEAPON_BOB_SPD, WEAPON_BOB_HORIS, WEAPON_BOB_VERT)
 	
 	if Input.is_action_just_released("crouch"):
 		uncrouch()

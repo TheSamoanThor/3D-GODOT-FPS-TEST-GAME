@@ -5,6 +5,9 @@ extends PlayerMovementState
 @export var ACCELERATION : float = 0.1
 @export var DECELERATION : float = 0.25
 @export var TOP_ANIM_SPEED : float = 2.2
+@export var WEAPON_BOB_SPD : float = 4.0
+@export var WEAPON_BOB_HORIS : float = 1.5
+@export var WEAPON_BOB_VERT : float = 0.75
 
 func enter(previous_state) -> void:
 	if ANIMATION.is_playing() and ANIMATION.current_animation == "jumpEnd":
@@ -24,6 +27,9 @@ func update(delta: float) -> void:
 	PLAYER.update_input(SPEED, ACCELERATION, DECELERATION)
 	PLAYER.update_velocity()
 	set_anim_speed(PLAYER.velocity.length())
+	
+	WEAPON.sway_weapon(delta, false)
+	WEAPON._weapon_bob(delta, WEAPON_BOB_SPD, WEAPON_BOB_HORIS, WEAPON_BOB_VERT)
 	
 	# 3. Transition to Idle if the player stops moving entirely on the floor
 	if PLAYER.velocity.length() == 0.0 and PLAYER.is_on_floor():

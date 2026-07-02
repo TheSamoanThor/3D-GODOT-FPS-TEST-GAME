@@ -462,11 +462,12 @@ shader_parameter/shield_color = Color(0.90917516, 0.10231236, 0.07741938, 1)
 shader_parameter/texture_scale = Vector2(5, 5)
 shader_parameter/pulse_speed = 1.5
 
-[node name="CharacterBody3D" type="CharacterBody3D" unique_id=179219016 node_paths=PackedStringArray("CAMERA_CONTROLLER", "ANIMATIONPLAYER", "CROUCH_SHAPECAST")]
+[node name="CharacterBody3D" type="CharacterBody3D" unique_id=179219016 node_paths=PackedStringArray("CAMERA_CONTROLLER", "ANIMATIONPLAYER", "CROUCH_SHAPECAST", "WEAPON_CONTROLLER")]
 script = ExtResource("1_7aj5b")
 CAMERA_CONTROLLER = NodePath("CameraController/Camera3D")
 ANIMATIONPLAYER = NodePath("AnimationPlayer")
 CROUCH_SHAPECAST = NodePath("ShapeCast3D")
+WEAPON_CONTROLLER = NodePath("SubViewportContainer/SubViewport/WeaponCameraController/WeaponRig/Weapon")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=608595226]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
@@ -645,7 +646,9 @@ unique_name_in_owner = true
 transform = Transform3D(1.4999999, 0, 0, 0, 1.4999999, 0, 0, 0, 1.5, 0, 0, 0)
 
 [node name="Weapon" parent="SubViewportContainer/SubViewport/WeaponCameraController/WeaponRig" unique_id=1240987764 instance=ExtResource("3_cww20")]
-transform = Transform3D(0.9999999, 0, 0, 0, 0.9999998, 0, 0, 0, 1, 0, 0, 0)
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0.065, -0.03, -0.1)
 WEAPON_TYPE = ExtResource("19_cnrdd")
+sway_speed = 1.2
+reset = false
 
 [connection signal="animation_started" from="AnimationPlayer" to="." method="_on_animation_player_animation_started"]
