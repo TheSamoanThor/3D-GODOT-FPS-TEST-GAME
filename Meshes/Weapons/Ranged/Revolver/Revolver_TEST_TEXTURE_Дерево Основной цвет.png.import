@@ -2,20 +2,24 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bykrns31fioy3"
-path="res://.godot/imported/CellsPattern.jpg-d8ccfbb5e086eb52ab3c9600f9f81a17.ctex"
+uid="uid://cxi2k6o11vjoy"
+path.s3tc="res://.godot/imported/Revolver_TEST_TEXTURE_Дерево Основной цвет.png-268e3037d238486c001787176edbe660.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
+}
+generator_parameters={
+"md5": "360c02982dd2a51285deec010a91034e"
 }
 
 [deps]
 
-source_file="res://UI/Patterns/CellsPattern.jpg"
-dest_files=["res://.godot/imported/CellsPattern.jpg-d8ccfbb5e086eb52ab3c9600f9f81a17.ctex"]
+source_file="res://Meshes/Weapons/Ranged/Revolver/Revolver_TEST_TEXTURE_Дерево Основной цвет.png"
+dest_files=["res://.godot/imported/Revolver_TEST_TEXTURE_Дерево Основной цвет.png-268e3037d238486c001787176edbe660.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -23,7 +27,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=false
+mipmaps/generate=true
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""
@@ -37,4 +41,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

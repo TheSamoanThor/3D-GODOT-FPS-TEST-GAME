@@ -37,7 +37,7 @@ func _ready() -> void:
 
 func _input(event):
 	if event.is_action_pressed("weapon1"):
-		WEAPON_TYPE = load("res://Meshes/Weapons/Ranged/Colt1911/Colt1911Resource.tres")
+		WEAPON_TYPE = load("res://Meshes/Weapons/Ranged/Revolver/RevolverResource.tres")
 		load_weapon()
 	if event.is_action_pressed("weapon2"):
 		WEAPON_TYPE = load("res://Meshes/Weapons/Melee/Crowbar/CrowbarResource.tres")

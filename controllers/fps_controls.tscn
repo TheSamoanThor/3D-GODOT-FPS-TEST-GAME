@@ -6,8 +6,8 @@
 [ext_resource type="StyleBox" uid="uid://d2akcwnvdlnct" path="res://UI/Themes/debug_panel.tres" id="3_vgucd"]
 [ext_resource type="Shader" uid="uid://bh4gerfxmgq1b" path="res://UI/Scripts/CellShader.gdshader" id="4_7mpjs"]
 [ext_resource type="Script" uid="uid://bise13n37morp" path="res://Scripts/Debug.gd" id="4_sc7co"]
-[ext_resource type="Texture2D" uid="uid://gkib3khstbhq" path="res://UI/Patterns/CellsPattern.jpg" id="5_cnrdd"]
 [ext_resource type="Script" uid="uid://btmysipg2xq3" path="res://Scripts/StateMachine.gd" id="5_s8hi6"]
+[ext_resource type="Texture2D" uid="uid://bykrns31fioy3" path="res://UI/Patterns/CellsPattern.jpg" id="6_7mpjs"]
 [ext_resource type="Script" uid="uid://l57734mymfss" path="res://Scripts/States/IdlePlayerState.gd" id="6_dma5w"]
 [ext_resource type="Script" uid="uid://db6ung184i0qc" path="res://Scripts/States/WalkingPlayerState.gd" id="7_hwntv"]
 [ext_resource type="Script" uid="uid://dkf086rsofrjq" path="res://Scripts/States/SprintingPlayerState.gd" id="8_4vovg"]
@@ -18,7 +18,6 @@
 [ext_resource type="Script" uid="uid://xokgf3fipj8x" path="res://Controllers/Scripts/WeaponViewport.gd" id="14_3vg2j"]
 [ext_resource type="Script" uid="uid://bn0bdsmhvksqv" path="res://Controllers/Scripts/WeaponCameraController.gd" id="15_cww20"]
 [ext_resource type="Script" uid="uid://m36wgr76h640" path="res://Controllers/Scripts/WeaponRendering.gd" id="15_ntw5c"]
-[ext_resource type="Resource" uid="uid://bturtcl81qkwu" path="res://Meshes/Weapons/Ranged/Colt1911/Colt1911Resource.tres" id="19_cnrdd"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_7aj5b"]
 
@@ -457,10 +456,15 @@ PanelContainer/styles/panel = ExtResource("3_vgucd")
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7mpjs"]
 shader = ExtResource("4_7mpjs")
-shader_parameter/hex_texture = ExtResource("5_cnrdd")
-shader_parameter/shield_color = Color(0.90917516, 0.10231236, 0.07741938, 1)
+shader_parameter/hex_texture = ExtResource("6_7mpjs")
+shader_parameter/shield_color = Color(1, 1, 1, 1)
 shader_parameter/texture_scale = Vector2(5, 5)
 shader_parameter/pulse_speed = 1.5
+shader_parameter/distortion_amount = 0.12
+shader_parameter/cheek_width = 0.2
+shader_parameter/cheek_height = 0.6
+shader_parameter/forehead_height = 0.07
+shader_parameter/fade_smoothness = 0.05
 
 [node name="CharacterBody3D" type="CharacterBody3D" unique_id=179219016 node_paths=PackedStringArray("CAMERA_CONTROLLER", "ANIMATIONPLAYER", "CROUCH_SHAPECAST", "WEAPON_CONTROLLER")]
 script = ExtResource("1_7aj5b")
@@ -496,96 +500,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 shape = SubResource("SphereShape3D_7aj5b")
 target_position = Vector3(0, 0.5, 0)
 debug_shape_custom_color = Color(1, 0, 0, 1)
-
-[node name="UI" type="Control" parent="." unique_id=790942151]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 1
-
-[node name="DebugPanel" type="PanelContainer" parent="UI" unique_id=2083330881]
-custom_minimum_size = Vector2(200, 0)
-layout_mode = 0
-offset_left = 10.0
-offset_top = 10.0
-offset_right = 210.0
-offset_bottom = 50.0
-theme = SubResource("Theme_31exe")
-script = ExtResource("4_sc7co")
-
-[node name="MarginContainer" type="MarginContainer" parent="UI/DebugPanel" unique_id=304587967]
-layout_mode = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="UI/DebugPanel/MarginContainer" unique_id=1648534369]
-unique_name_in_owner = true
-layout_mode = 2
-
-[node name="HelmetHUD" type="Control" parent="UI" unique_id=577425575]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Reticle" type="CenterContainer" parent="UI/HelmetHUD" unique_id=1684049664 node_paths=PackedStringArray("RETICLE_LINES", "PLAYER_CONTROLLER")]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -20.0
-offset_right = 20.0
-offset_bottom = 20.0
-grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("2_f1558")
-RETICLE_LINES = [NodePath("top"), NodePath("right"), NodePath("bottom"), NodePath("left")]
-PLAYER_CONTROLLER = NodePath("../../..")
-
-[node name="top" type="Line2D" parent="UI/HelmetHUD/Reticle" unique_id=406212630]
-points = PackedVector2Array(0, -15, 0, -5)
-width = 2.0
-
-[node name="right" type="Line2D" parent="UI/HelmetHUD/Reticle" unique_id=1180467921]
-points = PackedVector2Array(5, 0, 15, 0)
-width = 2.0
-
-[node name="bottom" type="Line2D" parent="UI/HelmetHUD/Reticle" unique_id=2129505341]
-points = PackedVector2Array(0, 5, 0, 15)
-width = 2.0
-
-[node name="left" type="Line2D" parent="UI/HelmetHUD/Reticle" unique_id=586602954]
-points = PackedVector2Array(-5, 0, -15, 0)
-width = 2.0
-
-[node name="LeftPanel" type="TextureRect" parent="UI/HelmetHUD" unique_id=1809350593]
-visible = false
-texture_repeat = 2
-material = SubResource("ShaderMaterial_7mpjs")
-layout_mode = 1
-anchors_preset = 9
-anchor_bottom = 1.0
-offset_right = 541.0
-grow_vertical = 2
-texture = ExtResource("5_cnrdd")
-
-[node name="RightPanel" type="TextureRect" parent="UI/HelmetHUD" unique_id=401697706]
-visible = false
-texture_repeat = 2
-layout_mode = 1
-anchors_preset = 11
-anchor_left = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -125.0
-grow_horizontal = 0
-grow_vertical = 2
 
 [node name="PlayerStateMachine" type="Node" parent="." unique_id=1594788940 node_paths=PackedStringArray("CURR_STATE")]
 script = ExtResource("5_s8hi6")
@@ -646,9 +560,86 @@ unique_name_in_owner = true
 transform = Transform3D(1.4999999, 0, 0, 0, 1.4999999, 0, 0, 0, 1.5, 0, 0, 0)
 
 [node name="Weapon" parent="SubViewportContainer/SubViewport/WeaponCameraController/WeaponRig" unique_id=1240987764 instance=ExtResource("3_cww20")]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0.065, -0.03, -0.1)
-WEAPON_TYPE = ExtResource("19_cnrdd")
-sway_speed = 1.2
-reset = false
+transform = Transform3D(0.15, 0, 0, 0, -6.5567085e-09, -0.15, 0, 0.15, -6.5567085e-09, 0.18, -0.22, -0.15)
+
+[node name="UI" type="Control" parent="." unique_id=790942151]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="DebugPanel" type="PanelContainer" parent="UI" unique_id=2083330881]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 210.0
+offset_bottom = 50.0
+mouse_filter = 1
+theme = SubResource("Theme_31exe")
+script = ExtResource("4_sc7co")
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/DebugPanel" unique_id=304587967]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/DebugPanel/MarginContainer" unique_id=1648534369]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="HelmetHUD" type="Control" parent="UI" unique_id=577425575]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="Reticle" type="CenterContainer" parent="UI/HelmetHUD" unique_id=1684049664 node_paths=PackedStringArray("RETICLE_LINES", "PLAYER_CONTROLLER")]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2_f1558")
+RETICLE_LINES = [NodePath("top"), NodePath("right"), NodePath("bottom"), NodePath("left")]
+PLAYER_CONTROLLER = NodePath("../../..")
+
+[node name="top" type="Line2D" parent="UI/HelmetHUD/Reticle" unique_id=406212630]
+points = PackedVector2Array(0, -15, 0, -5)
+width = 2.0
+
+[node name="right" type="Line2D" parent="UI/HelmetHUD/Reticle" unique_id=1180467921]
+points = PackedVector2Array(5, 0, 15, 0)
+width = 2.0
+
+[node name="bottom" type="Line2D" parent="UI/HelmetHUD/Reticle" unique_id=2129505341]
+points = PackedVector2Array(0, 5, 0, 15)
+width = 2.0
+
+[node name="left" type="Line2D" parent="UI/HelmetHUD/Reticle" unique_id=586602954]
+points = PackedVector2Array(-5, 0, -15, 0)
+width = 2.0
+
+[node name="HexagonsPanel" type="TextureRect" parent="UI/HelmetHUD" unique_id=1809350593]
+texture_repeat = 2
+material = SubResource("ShaderMaterial_7mpjs")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("6_7mpjs")
 
 [connection signal="animation_started" from="AnimationPlayer" to="." method="_on_animation_player_animation_started"]
