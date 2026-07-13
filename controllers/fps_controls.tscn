@@ -460,11 +460,11 @@ shader_parameter/hex_texture = ExtResource("6_7mpjs")
 shader_parameter/shield_color = Color(1, 1, 1, 1)
 shader_parameter/texture_scale = Vector2(5, 5)
 shader_parameter/pulse_speed = 1.5
-shader_parameter/distortion_amount = 0.12
+shader_parameter/distortion_amount = 0.1200000057
 shader_parameter/cheek_width = 0.2
-shader_parameter/cheek_height = 0.6
+shader_parameter/cheek_height = 0.50000002375
 shader_parameter/forehead_height = 0.07
-shader_parameter/fade_smoothness = 0.05
+shader_parameter/fade_smoothness = 0.15000000642648
 
 [node name="CharacterBody3D" type="CharacterBody3D" unique_id=179219016 node_paths=PackedStringArray("CAMERA_CONTROLLER", "ANIMATIONPLAYER", "CROUCH_SHAPECAST", "WEAPON_CONTROLLER")]
 script = ExtResource("1_7aj5b")

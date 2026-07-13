@@ -115,26 +115,76 @@ func _weapon_bob(delta, bob_speed: float, horis_bob_amount: float, vertic_bob_am
 	weapon_bob_amount.x = sin(time * bob_speed) * horis_bob_amount
 	weapon_bob_amount.y = abs(cos(time * bob_speed) * vertic_bob_amount)
 
-
 func _attack() -> void:
 	var camera = global.player.CAMERA_CONTROLLER
 	var space_state = camera.get_world_3d().direct_space_state
 	
-	var screen_center = get_viewport().size / 2
+	# Берем центр видимой игровой области, а не физического окна
+	var screen_center = get_viewport().get_visible_rect().size / 2
+	
 	var origin = camera.project_ray_origin(screen_center)
-	var end = origin + camera.project_ray_normal(screen_center) * 1000 # 1000 = distance of ray
+	var end = origin + camera.project_ray_normal(screen_center) * 1000.0
 	
 	var query = PhysicsRayQueryParameters3D.create(origin, end)
 	query.collide_with_bodies = true
 	
+	# Дополнительно исключаем самого игрока из проверки коллизий, 
+	# чтобы луч случайно не врезался в хитбокс персонажа изнутри
+	query.exclude = [global.player.get_rid()] 
+	
 	var result = space_state.intersect_ray(query)
 	if result:
-		_test_raycast(result.get("position"))
+		_bullet_hole(result.get("position"), result.get("normal"))
 
 
-func _test_raycast(position: Vector3) -> void:
+
+#func _bullet_hole(position: Vector3, normal: Vector3) -> void:
+	#var instance = raycast_test.instantiate()
+	#get_tree().root.add_child(instance)
+	#instance.global_position = position
+	#instance.look_at(instance.global_transform.origin + normal, Vector3.UP)
+	#await get_tree().create_timer(3).timeout
+	#instance.queue_free()
+	
+func _bullet_hole(hit_position: Vector3, hit_normal: Vector3) -> void:
 	var instance = raycast_test.instantiate()
 	get_tree().root.add_child(instance)
-	instance.global_position = position
-	await get_tree().create_timer(3).timeout
+	
+	# 1. Сдвигаем пулю на половину сантиметра ОТ стены по вектору нормали.
+	# Это убирает мерцание без необходимости включать просвечивающий No Depth Test
+	instance.global_position = hit_position + (hit_normal * 0.005)
+	
+	# ЛУЧШЕ ВРАЩАТЬ "ДЕКАЛЬ", ИНАЧЕ ПРОИЗВОДИТЕЛЬНОСТЬ СИЛЬНО СТРАДАЕТ
+	# но разраб не все знает, потому пока что так
+	# 2. Математически заставляем материал пули рендериться с двух сторон (Двусторонний режим)
+	# Ищем MeshInstance3D внутри созданной пули
+	var mesh_node = instance.get_node_or_null("MeshInstance3D") as MeshInstance3D
+	
+	var mat = mesh_node.get_active_material(0) as StandardMaterial3D
+	if mat:
+		# CULL_DISABLED = 2 (Отключает отсечение задних граней, делая меш двусторонним)
+		mat.cull_mode = StandardMaterial3D.CULL_DISABLED 
+	
+	# 3. Вычисляем точное вращение: ось Z плоскости теперь строго смотрит на нормаль стены
+	var up_direction = Vector3.UP if abs(hit_normal.dot(Vector3.UP)) < 0.99 else Vector3.FORWARD
+	instance.global_transform = Transform3D(
+		Basis.looking_at(hit_normal, up_direction), 
+		instance.global_position
+	)
+	
+	# Ждем 2 секунды перед началом растворения
+	await get_tree().create_timer(2.0).timeout
+	
+	# Создаем уникальную копию материала для этой конкретной пули
+	var original_mat = mesh_node.get_active_material(0)
+	if original_mat:
+		var unique_mat = original_mat.duplicate() as StandardMaterial3D
+		mesh_node.material_override = unique_mat # Применяем уникальный материал
+		
+		# Запускаем плавное растворение альфа-канала материала (с 1.0 до 0.0 за 1.5 секунды)
+		var tween = get_tree().create_tween()
+		tween.tween_property(unique_mat, "albedo_color:a", 0.0, 1.5)
+	
+	# Ждем окончания анимации (1.5 секунды) и удаляем объект из памяти
+	await get_tree().create_timer(1.5).timeout
 	instance.queue_free()
