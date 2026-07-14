@@ -14,6 +14,7 @@
 [ext_resource type="Script" uid="uid://cia8h8sbqnntt" path="res://Scripts/States/JumpingPlayerState.gd" id="9_uuy3c"]
 [ext_resource type="Script" uid="uid://3cltm4oseh0j" path="res://Scripts/States/CrouchingPlayerState.gd" id="10_yarfj"]
 [ext_resource type="Script" uid="uid://bkpdgf8mi8dyg" path="res://Scripts/States/FallingPlayerState.gd" id="11_do54p"]
+[ext_resource type="Script" uid="uid://r8w6evva1jc1" path="res://Scripts/WeaponRecoil.gd" id="12_cnrdd"]
 [ext_resource type="Script" uid="uid://ccmyhvowpaub3" path="res://Scripts/States/SlidingPlayerState.gd" id="12_vgucd"]
 [ext_resource type="Script" uid="uid://xokgf3fipj8x" path="res://Controllers/Scripts/WeaponViewport.gd" id="14_3vg2j"]
 [ext_resource type="Script" uid="uid://bn0bdsmhvksqv" path="res://Controllers/Scripts/WeaponCameraController.gd" id="15_cww20"]
@@ -142,7 +143,7 @@ tracks/8/keys = {
 tracks/9/type = "value"
 tracks/9/imported = false
 tracks/9/enabled = true
-tracks/9/path = NodePath("CameraController/Camera3D:fov")
+tracks/9/path = NodePath("CameraController/Recoil/Camera3D:fov")
 tracks/9/interp = 1
 tracks/9/loop_wrap = true
 tracks/9/keys = {
@@ -348,7 +349,7 @@ tracks/6/keys = {
 tracks/7/type = "value"
 tracks/7/imported = false
 tracks/7/enabled = true
-tracks/7/path = NodePath("CameraController/Camera3D:fov")
+tracks/7/path = NodePath("CameraController/Recoil/Camera3D:fov")
 tracks/7/interp = 1
 tracks/7/loop_wrap = true
 tracks/7/keys = {
@@ -468,10 +469,10 @@ shader_parameter/fade_smoothness = 0.15000000642648
 
 [node name="CharacterBody3D" type="CharacterBody3D" unique_id=179219016 node_paths=PackedStringArray("CAMERA_CONTROLLER", "ANIMATIONPLAYER", "CROUCH_SHAPECAST", "WEAPON_CONTROLLER")]
 script = ExtResource("1_7aj5b")
-CAMERA_CONTROLLER = NodePath("CameraController/Camera3D")
+CAMERA_CONTROLLER = NodePath("CameraController/Recoil/Camera3D")
 ANIMATIONPLAYER = NodePath("AnimationPlayer")
 CROUCH_SHAPECAST = NodePath("ShapeCast3D")
-WEAPON_CONTROLLER = NodePath("SubViewportContainer/SubViewport/WeaponCameraController/WeaponRig/Weapon")
+WEAPON_CONTROLLER = NodePath("CameraController/Recoil/SubViewportContainer/SubViewport/WeaponCameraController/WeaponCamera/WeaponRig/Weapon")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=608595226]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
@@ -484,12 +485,49 @@ mesh = SubResource("CapsuleMesh_34evc")
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 
-[node name="Camera3D" type="Camera3D" parent="CameraController" unique_id=1911372115]
+[node name="Recoil" type="Node3D" parent="CameraController" unique_id=1657700720 node_paths=PackedStringArray("weapon")]
+script = ExtResource("12_cnrdd")
+recoil_amount = Vector3(0.25, 0.15, 0)
+snap_amount = 8.0
+speed = 4.0
+weapon = NodePath("SubViewportContainer/SubViewport/WeaponCameraController/WeaponCamera/WeaponRig/Weapon")
+
+[node name="Camera3D" type="Camera3D" parent="CameraController/Recoil" unique_id=1911372115]
 cull_mask = 1048573
 environment = SubResource("Environment_yarfj")
 
-[node name="ReflectionProbe" type="ReflectionProbe" parent="CameraController/Camera3D" unique_id=1138847772]
+[node name="ReflectionProbe" type="ReflectionProbe" parent="CameraController/Recoil/Camera3D" unique_id=1138847772]
 visible = false
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="CameraController/Recoil" unique_id=1753537368]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SubViewport" type="SubViewport" parent="CameraController/Recoil/SubViewportContainer" unique_id=1088780855]
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(1152, 648)
+render_target_update_mode = 4
+script = ExtResource("14_3vg2j")
+
+[node name="WeaponCameraController" type="Node3D" parent="CameraController/Recoil/SubViewportContainer/SubViewport" unique_id=1572444385]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+script = ExtResource("15_cww20")
+
+[node name="WeaponCamera" type="Camera3D" parent="CameraController/Recoil/SubViewportContainer/SubViewport/WeaponCameraController" unique_id=691481083 node_paths=PackedStringArray("MAIN_CAMERA")]
+cull_mask = 1048574
+script = ExtResource("15_ntw5c")
+MAIN_CAMERA = NodePath("../../../../Camera3D")
+
+[node name="WeaponRig" type="Node3D" parent="CameraController/Recoil/SubViewportContainer/SubViewport/WeaponCameraController/WeaponCamera" unique_id=335240670]
+unique_name_in_owner = true
+transform = Transform3D(1.4999999, 0, 0, 0, 1.4999999, 0, 0, 0, 1.5, 0, 0, 0)
+
+[node name="Weapon" parent="CameraController/Recoil/SubViewportContainer/SubViewport/WeaponCameraController/WeaponCamera/WeaponRig" unique_id=1240987764 instance=ExtResource("3_cww20")]
+transform = Transform3D(0.15, 0, 0, 0, -6.5567085e-09, -0.15, 0, 0.15, -6.5567085e-09, 0.18, -0.22, -0.15)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1360881977]
 libraries/ = SubResource("AnimationLibrary_f1558")
@@ -531,36 +569,6 @@ metadata/_custom_type_script = "uid://br1dclvx7b383"
 [node name="SlidingPlayerState" type="Node" parent="PlayerStateMachine" unique_id=1595201811]
 script = ExtResource("12_vgucd")
 metadata/_custom_type_script = "uid://br1dclvx7b383"
-
-[node name="SubViewportContainer" type="SubViewportContainer" parent="." unique_id=1753537368]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="SubViewport" type="SubViewport" parent="SubViewportContainer" unique_id=1088780855]
-transparent_bg = true
-handle_input_locally = false
-size = Vector2i(1152, 648)
-render_target_update_mode = 4
-script = ExtResource("14_3vg2j")
-
-[node name="WeaponCameraController" type="Node3D" parent="SubViewportContainer/SubViewport" unique_id=1572444385]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
-script = ExtResource("15_cww20")
-
-[node name="WeaponCamera" type="Camera3D" parent="SubViewportContainer/SubViewport/WeaponCameraController" unique_id=691481083 node_paths=PackedStringArray("MAIN_CAMERA")]
-cull_mask = 1048574
-script = ExtResource("15_ntw5c")
-MAIN_CAMERA = NodePath("../../../../CameraController/Camera3D")
-
-[node name="WeaponRig" type="Node3D" parent="SubViewportContainer/SubViewport/WeaponCameraController" unique_id=335240670]
-unique_name_in_owner = true
-transform = Transform3D(1.4999999, 0, 0, 0, 1.4999999, 0, 0, 0, 1.5, 0, 0, 0)
-
-[node name="Weapon" parent="SubViewportContainer/SubViewport/WeaponCameraController/WeaponRig" unique_id=1240987764 instance=ExtResource("3_cww20")]
-transform = Transform3D(0.15, 0, 0, 0, -6.5567085e-09, -0.15, 0, 0.15, -6.5567085e-09, 0.18, -0.22, -0.15)
 
 [node name="UI" type="Control" parent="." unique_id=790942151]
 layout_mode = 3

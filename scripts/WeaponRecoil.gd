@@ -1,32 +1,24 @@
 extends Node3D
 
 @export var recoil_amount : Vector3
-@export var snap_amount : float = 10.0 # Оптимально для сглаживания подскока
-@export var speed : float = 4.0        # Оптимально для возврата назад
+@export var snap_amount : float
+@export var speed : float
 
 @export var weapon : WeaponController
 
 var current_rotation : Vector3
 var target_rotation : Vector3
 
+# Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	# Находим оружие внутри SubViewport напрямую, чтобы исключить баги сигналов
-	if not weapon:
-		weapon = get_node_or_null("WeaponRig/Weapon") as WeaponController
+	weapon.weapon_fired.connect(add_recoil)
 
+# Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	# Плавно возвращаем целевой угол к нулю
-	target_rotation = target_rotation.lerp(Vector3.ZERO, speed * delta)
-	# Плавно ведем текущее вращение к целевому
-	current_rotation = current_rotation.lerp(target_rotation, snap_amount * delta)
+	target_rotation = lerp(target_rotation, Vector3.ZERO, speed * delta)
+	current_rotation = lerp(current_rotation, target_rotation, snap_amount * delta)
+	basis = Quaternion.from_euler(current_rotation)
 	
-	# ПРЯМОЕ ИСПРАВЛЕНИЕ: Вместо тяжелых кватернионов используем простые и надежные углы Godot
-	rotation_degrees = current_rotation
-
 func add_recoil() -> void:
-	# Физический подскок: X идет в минус (ствол задирается вверх), Y и Z уходят в стороны
-	target_rotation += Vector3(
-		-recoil_amount.x, 
-		randf_range(-recoil_amount.y, recoil_amount.y),
-		randf_range(-recoil_amount.z, recoil_amount.z)
-	)
+	target_rotation += Vector3(randf_range(0, recoil_amount.x), randf_range(-
+	recoil_amount.y, recoil_amount.y), randf_range(-recoil_amount.z, recoil_amount.z))

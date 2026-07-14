@@ -2,6 +2,8 @@
 
 class_name WeaponController extends Node3D
 
+signal weapon_fired
+
 @export var WEAPON_TYPE : Weapons:
 	set(value):
 		WEAPON_TYPE = value
@@ -116,6 +118,7 @@ func _weapon_bob(delta, bob_speed: float, horis_bob_amount: float, vertic_bob_am
 	weapon_bob_amount.y = abs(cos(time * bob_speed) * vertic_bob_amount)
 
 func _attack() -> void:
+	weapon_fired.emit()
 	var camera = global.player.CAMERA_CONTROLLER
 	var space_state = camera.get_world_3d().direct_space_state
 	
