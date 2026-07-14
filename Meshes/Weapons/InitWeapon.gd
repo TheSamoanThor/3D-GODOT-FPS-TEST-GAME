@@ -6,7 +6,7 @@ class_name WeaponController extends Node3D
 	set(value):
 		WEAPON_TYPE = value
 		if Engine.is_editor_hint():
-			load_weapon
+			load_weapon()
 
 @export var sway_noise : NoiseTexture2D
 @export var sway_speed : float = 1.2

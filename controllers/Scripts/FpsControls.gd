@@ -84,3 +84,29 @@ func update_input(speed: float, acceleration: float, deceleration: float) -> voi
 
 func update_velocity() -> void:
 	move_and_slide()
+
+func _process(delta: float) -> void:
+	if WEAPON_CONTROLLER == null:
+		return
+		
+	# 1. Определяем, стоит игрок или идет
+	var is_idle: bool = velocity.length() < 0.2
+	
+	# 2. Если игрок идет, рассчитываем боббинг (покачивание шагов)
+	if not is_idle:
+		# Параметры: delta, скорость шагов, качание по X, качание по Y
+		# Вы можете настроить эти цифры под ваш вкус
+		WEAPON_CONTROLLER._weapon_bob(delta, 10.0, 0.04, 0.02)
+	
+	# 3. Передаем ввод мыши напрямую в оружие, используя закешированное значение!
+	# Так как оригинальный инпут зануляется физикой, мы берем относительное движение камеры
+	if _current_rotation != 0.0 or _tilt_input != 0.0:
+		# Восстанавливаем вектор движения мыши для оружия
+		# Делим на SENSITIVITY, чтобы вернуть чистые пиксели движения, которые ждет оружие
+		WEAPON_CONTROLLER.mouse_movement = Vector2(
+			-_current_rotation / MOUSE_SENSITIVITY, 
+			-_tilt_input / MOUSE_SENSITIVITY
+		)
+	
+	# 4. Вызываем свей оружия ОДИН раз для всех состояний прямо отсюда
+	WEAPON_CONTROLLER.sway_weapon(delta, is_idle)
