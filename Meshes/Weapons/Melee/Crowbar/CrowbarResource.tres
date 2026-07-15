@@ -50,4 +50,6 @@ rotation = Vector3(0, 90, -90)
 scale = Vector3(1, 1, 1)
 mesh = SubResource("ArrayMesh_qm0fq")
 damage = 15.0
+isMelee = true
+range = 5.0
 metadata/_custom_type_script = "uid://dd621cckf7hys"

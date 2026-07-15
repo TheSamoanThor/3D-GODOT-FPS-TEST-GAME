@@ -24,3 +24,11 @@ class_name Weapons extends Resource
 
 @export_category("Feature Settings")
 @export var damage : float
+@export var isMelee : bool
+@export var range : float
+
+
+@export_category("Muzzle Flash Settings")
+@export var muzzle_flash_position : Vector3       # Индивидуальная позиция дула
+@export var muzzle_flash_color : Color = Color(1, 0.6, 0) # Цвет вспышки (по умолчанию оранжевый)
+@export var muzzle_flash_speed : float = 0.05     # Время горения вспышки

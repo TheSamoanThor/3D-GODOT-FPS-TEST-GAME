@@ -10,7 +10,6 @@
 [ext_resource type="Texture2D" uid="uid://bykrns31fioy3" path="res://UI/Patterns/CellsPattern.jpg" id="6_7mpjs"]
 [ext_resource type="Script" uid="uid://l57734mymfss" path="res://Scripts/States/IdlePlayerState.gd" id="6_dma5w"]
 [ext_resource type="Script" uid="uid://db6ung184i0qc" path="res://Scripts/States/WalkingPlayerState.gd" id="7_hwntv"]
-[ext_resource type="Resource" uid="uid://dlmgbp1xs2sxw" path="res://Meshes/Weapons/Ranged/Revolver/RevolverResource.tres" id="7_ilhgk"]
 [ext_resource type="Script" uid="uid://dkf086rsofrjq" path="res://Scripts/States/SprintingPlayerState.gd" id="8_4vovg"]
 [ext_resource type="Script" uid="uid://cia8h8sbqnntt" path="res://Scripts/States/JumpingPlayerState.gd" id="9_uuy3c"]
 [ext_resource type="Script" uid="uid://3cltm4oseh0j" path="res://Scripts/States/CrouchingPlayerState.gd" id="10_yarfj"]
@@ -528,8 +527,6 @@ unique_name_in_owner = true
 transform = Transform3D(1.4999999, 0, 0, 0, 1.4999999, 0, 0, 0, 1.5, 0, 0, 0)
 
 [node name="Weapon" parent="CameraController/Recoil/SubViewportContainer/SubViewport/WeaponCameraController/WeaponCamera/WeaponRig" unique_id=1240987764 instance=ExtResource("3_cww20")]
-transform = Transform3D(0.15, 0, 0, 0, -6.5567085e-09, -0.15, 0, 0.15, -6.5567085e-09, 0.18, -0.22, -0.15)
-WEAPON_TYPE = ExtResource("7_ilhgk")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1360881977]
 libraries/ = SubResource("AnimationLibrary_f1558")

@@ -20,6 +20,9 @@ signal weapon_fired
 
 @onready var weapon_mesh : MeshInstance3D = %WeaponMesh
 @onready var weapon_shadow : MeshInstance3D = %WeaponShadow
+@onready var muzzle_flash_node : Node3D = %MuzzleFlash
+@onready var muzzle_light : OmniLight3D = %OmniLight3D
+# MUST BE OFF IN THE SCENE TO AVOID UNNECESSARY LIGHT IN THE START OF LEVEL
 
 var mouse_movement : Vector2
 var random_sway_x
@@ -39,7 +42,7 @@ func _ready() -> void:
 
 func _input(event):
 	if event.is_action_pressed("weapon1"):
-		WEAPON_TYPE = load("res://Meshes/Weapons/Ranged/Revolver/RevolverResource.tres")
+		WEAPON_TYPE = load("res://Meshes/Weapons/Ranged/Colt1911/Colt1911Resource.tres")
 		load_weapon()
 	if event.is_action_pressed("weapon2"):
 		WEAPON_TYPE = load("res://Meshes/Weapons/Melee/Crowbar/CrowbarResource.tres")
@@ -58,6 +61,10 @@ func load_weapon() -> void:
 	idle_sway_adjustment = WEAPON_TYPE.idle_sway_adjustment
 	idle_sway_rotation_strength = WEAPON_TYPE.idle_sway_rotation_strength
 	random_sway_amount = WEAPON_TYPE.random_sway_amount
+	# Перемещаем узел прямо к дулу конкретной модели
+	muzzle_flash_node.position = WEAPON_TYPE.muzzle_flash_position
+	# Меняем цвет источника света
+	muzzle_light.light_color = WEAPON_TYPE.muzzle_flash_color
 
 func sway_weapon(delta, isIdle: bool) -> void:
 	
@@ -119,26 +126,27 @@ func _weapon_bob(delta, bob_speed: float, horis_bob_amount: float, vertic_bob_am
 	weapon_bob_amount.y = abs(cos(time * bob_speed) * vertic_bob_amount)
 
 func _attack() -> void:
-	weapon_fired.emit()
-	var camera = global.player.CAMERA_CONTROLLER
-	var space_state = camera.get_world_3d().direct_space_state
-	
-	# Берем центр видимой игровой области, а не физического окна
-	var screen_center = get_viewport().get_visible_rect().size / 2
-	
-	var origin = camera.project_ray_origin(screen_center)
-	var end = origin + camera.project_ray_normal(screen_center) * 1000.0
-	
-	var query = PhysicsRayQueryParameters3D.create(origin, end)
-	query.collide_with_bodies = true
-	
-	# Дополнительно исключаем самого игрока из проверки коллизий, 
-	# чтобы луч случайно не врезался в хитбокс персонажа изнутри
-	query.exclude = [global.player.get_rid()] 
-	
-	var result = space_state.intersect_ray(query)
-	if result:
-		_bullet_hole(result.get("position"), result.get("normal"))
+	if !WEAPON_TYPE.isMelee:
+		weapon_fired.emit()
+		var camera = global.player.CAMERA_CONTROLLER
+		var space_state = camera.get_world_3d().direct_space_state
+		
+		# Берем центр видимой игровой области, а не физического окна
+		var screen_center = get_viewport().get_visible_rect().size / 2
+		
+		var origin = camera.project_ray_origin(screen_center)
+		var end = origin + camera.project_ray_normal(screen_center) * WEAPON_TYPE.range
+		
+		var query = PhysicsRayQueryParameters3D.create(origin, end)
+		query.collide_with_bodies = true
+		
+		# Дополнительно исключаем самого игрока из проверки коллизий, 
+		# чтобы луч случайно не врезался в хитбокс персонажа изнутри
+		query.exclude = [global.player.get_rid()] 
+		
+		var result = space_state.intersect_ray(query)
+		if result:
+			_bullet_hole(result.get("position"), result.get("normal"))
 
 
 

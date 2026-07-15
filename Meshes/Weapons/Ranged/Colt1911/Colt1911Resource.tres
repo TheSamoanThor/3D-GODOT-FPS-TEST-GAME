@@ -54,4 +54,6 @@ mesh = SubResource("ArrayMesh_cbjag")
 sway_min = Vector2(-5, -5)
 sway_max = Vector2(5, 5)
 damage = 25.0
+range = 100.0
+muzzle_flash_position = Vector3(0, 0, 0.15)
 metadata/_custom_type_script = "uid://dd621cckf7hys"

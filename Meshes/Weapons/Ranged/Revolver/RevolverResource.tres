@@ -117,4 +117,6 @@ mesh = SubResource("ArrayMesh_8uyhw")
 sway_min = Vector2(-5, -5)
 sway_max = Vector2(5, 5)
 damage = 25.0
+range = 100.0
+muzzle_flash_position = Vector3(0, -2, -1.1)
 metadata/_custom_type_script = "uid://dd621cckf7hys"
