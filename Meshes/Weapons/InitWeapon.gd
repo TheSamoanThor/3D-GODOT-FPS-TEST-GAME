@@ -50,6 +50,7 @@ func _input(event):
 
 func load_weapon() -> void:
 	weapon_mesh.mesh = WEAPON_TYPE.mesh # Set weapon mesh
+	weapon_shadow.mesh = WEAPON_TYPE.mesh
 	position = WEAPON_TYPE.position # Set wespon position
 	rotation_degrees = WEAPON_TYPE.rotation # Set weapon rotation
 	scale = WEAPON_TYPE.scale # Set weapon scale

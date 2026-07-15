@@ -47,7 +47,7 @@ shadow_mesh = SubResource("ArrayMesh_ots4b")
 [resource]
 script = ExtResource("2_qqojx")
 name = &"Colt1911"
-position = Vector3(0.065, -0.03, -0.1)
+position = Vector3(0.065, -0.03, -0.12)
 rotation = Vector3(0, 180, 0)
 scale = Vector3(1, 1, 1)
 mesh = SubResource("ArrayMesh_cbjag")

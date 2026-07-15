@@ -110,7 +110,7 @@ shadow_mesh = SubResource("ArrayMesh_lbm1s")
 [resource]
 script = ExtResource("4_77efp")
 name = &"Revolver"
-position = Vector3(0.18, -0.22, -0.15)
+position = Vector3(0.18, -0.22, -0.2)
 rotation = Vector3(90, 0, 0)
 scale = Vector3(0.15, 0.15, 0.15)
 mesh = SubResource("ArrayMesh_8uyhw")
