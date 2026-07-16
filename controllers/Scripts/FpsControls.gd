@@ -10,6 +10,7 @@ class_name Player extends CharacterBody3D
 @export var ANIMATIONPLAYER : AnimationPlayer
 @export var CROUCH_SHAPECAST : ShapeCast3D
 @export var WEAPON_CONTROLLER : WeaponController
+@export var interact_distance : float = 2.0
 
 var _speed : float
 var _mouse_input : bool = false
@@ -19,9 +20,15 @@ var _tilt_input : float
 
 var _current_rotation : float
 
+var interaction_cast_result
+
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("exit"):
 		get_tree().quit()
+	if event.is_action_pressed("interact"):
+		interact()
+	if Input.is_action_just_pressed("attack"):
+		WEAPON_CONTROLLER._attack()
 
 func _unhandled_input(event: InputEvent) -> void:
 	_mouse_input = event is InputEventMouseMotion and Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED
@@ -110,3 +117,31 @@ func _process(delta: float) -> void:
 	
 	# 4. Вызываем свей оружия ОДИН раз для всех состояний прямо отсюда
 	WEAPON_CONTROLLER.sway_weapon(delta, is_idle)
+	
+	interact_cast()
+
+
+func interact() -> void:
+	if interaction_cast_result:
+		print(interaction_cast_result)
+
+func interact_cast() -> void:
+	# stole raycast code from attack func
+	var camera = global.player.CAMERA_CONTROLLER
+	var space_state = camera.get_world_3d().direct_space_state
+	
+	# Берем центр видимой игровой области, а не физического окна
+	var screen_center = get_viewport().get_visible_rect().size / 2
+	
+	var origin = camera.project_ray_origin(screen_center)
+	var end = origin + camera.project_ray_normal(screen_center) * interact_distance
+	
+	var query = PhysicsRayQueryParameters3D.create(origin, end)
+	query.collide_with_bodies = true
+	
+	query.exclude = [global.player.get_rid()]
+	
+	var result = space_state.intersect_ray(query)
+	
+	if result:
+		interaction_cast_result = result.get("collider")

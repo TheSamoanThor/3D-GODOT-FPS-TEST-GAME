@@ -33,7 +33,8 @@ var idle_sway_adjustment
 var idle_sway_rotation_strength
 var weapon_bob_amount: Vector2 = Vector2(0,0)
 
-var raycast_test = preload("res://Meshes/Weapons/raycast_test.tscn")
+var bullet_hole = preload("res://Meshes/Weapons/bullet_hole.tscn")
+var bullet_scene = preload("res://Meshes/Weapons/bullet.tscn")
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -126,7 +127,7 @@ func _weapon_bob(delta, bob_speed: float, horis_bob_amount: float, vertic_bob_am
 	weapon_bob_amount.y = abs(cos(time * bob_speed) * vertic_bob_amount)
 
 func _attack() -> void:
-	if !WEAPON_TYPE.isMelee:
+	if !WEAPON_TYPE.isMelee and WEAPON_TYPE.isRayWeapon:
 		weapon_fired.emit()
 		var camera = global.player.CAMERA_CONTROLLER
 		var space_state = camera.get_world_3d().direct_space_state
@@ -147,56 +148,133 @@ func _attack() -> void:
 		var result = space_state.intersect_ray(query)
 		if result:
 			_bullet_hole(result.get("position"), result.get("normal"))
+	if !WEAPON_TYPE.isMelee and !WEAPON_TYPE.isRayWeapon:
+		weapon_fired.emit()
+		
+		var camera = global.player.CAMERA_CONTROLLER
+		
+		# 1. РАСЧЕТ РАЗБРОСА ОТ СКОРОСТИ
+		# Получаем текущую скорость игрока
+		var player_speed = global.player.velocity.length()
+		# Итоговый радиус разброса = базовый + (скорость * коэффициент)
+		var current_spread = WEAPON_TYPE.base_spread + (player_speed * WEAPON_TYPE.movement_spread_factor)
+		
+		# Генерируем случайное смещение внутри круга разброса
+		var random_angle = randf() * TAU
+		var random_radius = randf() * current_spread
+		var spread_offset = Vector2(cos(random_angle), sin(random_angle)) * random_radius
+		
+		# 2. НАПРАВЛЕНИЕ ВЫСТРЕЛА С УЧЕТОМ РАЗБРОСА
+		# Берем чистый вектор направления камеры вперед
+		var target_normal = camera.project_ray_normal(get_viewport().get_visible_rect().size / 2)
+		
+		# Создаем базис (систему координат) на основе направления камеры, чтобы отклонить вектор
+		var base_transform = Transform3D(Basis.looking_at(target_normal), Vector3.ZERO)
+		# Смещаем вектор направления по локальным осям X и Y камеры
+		var final_direction = (base_transform.basis * Vector3(spread_offset.x, spread_offset.y, -1.0)).normalized()
+		
+		# 3. СПАВН ТРАССЕРА/ПУЛИ
+		var bullet = bullet_scene.instantiate()
+		get_tree().root.add_child(bullet)
+		
+		# создание дырки при помощи сигнала
+		bullet.hit_registered.connect(_bullet_hole)
+		# Пуля вылетает из дула оружия (muzzle_flash_node), а не из центра экрана
+		bullet.global_position = muzzle_flash_node.global_position
+		
+		# Передаем пуле её урон и вектор скорости (направление * скорость полета)
+		bullet.damage = WEAPON_TYPE.damage
+		bullet.velocity = final_direction * bullet.speed
+		
+		# Поворачиваем меш пули по направлению полета, чтобы она летела носом вперед
+		bullet.look_at(bullet.global_position + final_direction)
 
-
-
-#func _bullet_hole(position: Vector3, normal: Vector3) -> void:
-	#var instance = raycast_test.instantiate()
+# old func to create bullet holes spawning a bullet hole scene
+#func _bullet_hole(hit_position: Vector3, hit_normal: Vector3) -> void:
+	#var instance = bullet_hole.instantiate()
 	#get_tree().root.add_child(instance)
-	#instance.global_position = position
-	#instance.look_at(instance.global_transform.origin + normal, Vector3.UP)
-	#await get_tree().create_timer(3).timeout
+	#
+	## 1. Сдвигаем пулю на половину сантиметра ОТ стены по вектору нормали.
+	## Это убирает мерцание без необходимости включать просвечивающий No Depth Test
+	#instance.global_position = hit_position + (hit_normal * 0.005)
+	#
+	## ЛУЧШЕ ВРАЩАТЬ "ДЕКАЛЬ", ИНАЧЕ ПРОИЗВОДИТЕЛЬНОСТЬ СИЛЬНО СТРАДАЕТ
+	## но разраб не все знает, потому пока что так
+	## 2. Математически заставляем материал пули рендериться с двух сторон (Двусторонний режим)
+	## Ищем MeshInstance3D внутри созданной пули
+	#var mesh_node = instance.get_node_or_null("MeshInstance3D") as MeshInstance3D
+	#
+	#var mat = mesh_node.get_active_material(0) as StandardMaterial3D
+	#if mat:
+		## CULL_DISABLED = 2 (Отключает отсечение задних граней, делая меш двусторонним)
+		#mat.cull_mode = StandardMaterial3D.CULL_DISABLED 
+	#
+	## 3. Вычисляем точное вращение: ось Z плоскости теперь строго смотрит на нормаль стены
+	#var up_direction = Vector3.UP if abs(hit_normal.dot(Vector3.UP)) < 0.99 else Vector3.FORWARD
+	#instance.global_transform = Transform3D(
+		#Basis.looking_at(hit_normal, up_direction), 
+		#instance.global_position
+	#)
+	#
+	## Ждем 2 секунды перед началом растворения
+	#await get_tree().create_timer(2.0).timeout
+	#
+	## Создаем уникальную копию материала для этой конкретной пули
+	#var original_mat = mesh_node.get_active_material(0)
+	#if original_mat:
+		#var unique_mat = original_mat.duplicate() as StandardMaterial3D
+		#mesh_node.material_override = unique_mat # Применяем уникальный материал
+		#
+		## Запускаем плавное растворение альфа-канала материала (с 1.0 до 0.0 за 1.5 секунды)
+		#var tween = get_tree().create_tween()
+		#tween.tween_property(unique_mat, "albedo_color:a", 0.0, 1.5)
+	#
+	## Ждем окончания анимации (1.5 секунды) и удаляем объект из памяти
+	#await get_tree().create_timer(1.5).timeout
 	#instance.queue_free()
+
+func _bullet_hole(hit_position: Vector3, hit_normal: Vector3) -> void: #bullet_hole.tscn can be deleted?
+	# 1. Создаем чистый 3D-меш
+	var instance = MeshInstance3D.new()
 	
-func _bullet_hole(hit_position: Vector3, hit_normal: Vector3) -> void:
-	var instance = raycast_test.instantiate()
+	# 2. Настраиваем форму
+	var quad_mesh = QuadMesh.new()
+	quad_mesh.size = Vector2(0.1, 0.1) # Размер дырки от пули (10х10 сантиметров)
+	instance.mesh = quad_mesh
+	
+	# 3. Создаем и настраиваем материал
+	var mat = StandardMaterial3D.new()
+	mat.albedo_color = Color(0.1, 0.1, 0.1, 1.0) # Черный/темно-серый цвет дырки
+	mat.cull_mode = StandardMaterial3D.CULL_DISABLED # Двусторонний режим
+	mat.transparency = StandardMaterial3D.TRANSPARENCY_ALPHA # Включаем прозрачность для будущего затухания
+	
+	# Если у вас есть текстура дырки, можно раскомментировать эту строчку:
+	mat.albedo_texture = preload("res://Textures/bullet_hole.png")
+	
+	instance.material_override = mat
+	
+	# 4. Добавляем объект на карту
 	get_tree().root.add_child(instance)
 	
-	# 1. Сдвигаем пулю на половину сантиметра ОТ стены по вектору нормали.
-	# Это убирает мерцание без необходимости включать просвечивающий No Depth Test
+	# 5. Позиционируем и сдвигаем от стены на полсантиметра (чтобы не было мерцания)
 	instance.global_position = hit_position + (hit_normal * 0.005)
 	
-	# ЛУЧШЕ ВРАЩАТЬ "ДЕКАЛЬ", ИНАЧЕ ПРОИЗВОДИТЕЛЬНОСТЬ СИЛЬНО СТРАДАЕТ
-	# но разраб не все знает, потому пока что так
-	# 2. Математически заставляем материал пули рендериться с двух сторон (Двусторонний режим)
-	# Ищем MeshInstance3D внутри созданной пули
-	var mesh_node = instance.get_node_or_null("MeshInstance3D") as MeshInstance3D
-	
-	var mat = mesh_node.get_active_material(0) as StandardMaterial3D
-	if mat:
-		# CULL_DISABLED = 2 (Отключает отсечение задних граней, делая меш двусторонним)
-		mat.cull_mode = StandardMaterial3D.CULL_DISABLED 
-	
-	# 3. Вычисляем точное вращение: ось Z плоскости теперь строго смотрит на нормаль стены
+	# 6. Разворачиваем меш параллельно стене
 	var up_direction = Vector3.UP if abs(hit_normal.dot(Vector3.UP)) < 0.99 else Vector3.FORWARD
 	instance.global_transform = Transform3D(
 		Basis.looking_at(hit_normal, up_direction), 
 		instance.global_position
 	)
 	
-	# Ждем 2 секунды перед началом растворения
+	# randf_range(0, TAU) сгенерирует угол от 0 до 360 градусов в радианах
+	instance.rotate_object_local(Vector3.FORWARD, randf_range(0, TAU))
+	
+	# 7. Логика уничтожения: ждем 2 секунды, плавно растворяем за 1.5 сек и удаляем
 	await get_tree().create_timer(2.0).timeout
 	
-	# Создаем уникальную копию материала для этой конкретной пули
-	var original_mat = mesh_node.get_active_material(0)
-	if original_mat:
-		var unique_mat = original_mat.duplicate() as StandardMaterial3D
-		mesh_node.material_override = unique_mat # Применяем уникальный материал
-		
-		# Запускаем плавное растворение альфа-канала материала (с 1.0 до 0.0 за 1.5 секунды)
-		var tween = get_tree().create_tween()
-		tween.tween_property(unique_mat, "albedo_color:a", 0.0, 1.5)
+	var tween = get_tree().create_tween()
+	# Плавно уводим прозрачность материала в ноль
+	tween.tween_property(mat, "albedo_color:a", 0.0, 1.5)
 	
-	# Ждем окончания анимации (1.5 секунды) и удаляем объект из памяти
 	await get_tree().create_timer(1.5).timeout
 	instance.queue_free()

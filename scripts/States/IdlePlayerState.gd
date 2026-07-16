@@ -21,5 +21,3 @@ func update(delta: float) -> void:
 		transition.emit("CrouchingPlayerState")
 	if Input.is_action_just_pressed("jump") and PLAYER.is_on_floor():
 		transition.emit("JumpingPlayerState")
-	if Input.is_action_just_pressed("attack"):
-		WEAPON._attack()

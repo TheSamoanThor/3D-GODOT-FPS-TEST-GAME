@@ -26,7 +26,12 @@ class_name Weapons extends Resource
 @export var damage : float
 @export var isMelee : bool
 @export var range : float
+@export var isRayWeapon: bool = false
 
+@export_category("Weapon Accuracy")
+@export var base_spread : float = 0.01 # Базовый разброс оружия (в радианах)
+@export var movement_spread_factor : float = 0.05 # Насколько сильно разброс увеличивается от скорости хода
+#@export var bullet_scene # MUST BE ADDED FOR DIFFERENT AMMO TYPES
 
 @export_category("Muzzle Flash Settings")
 @export var muzzle_flash_position : Vector3       # Индивидуальная позиция дула
