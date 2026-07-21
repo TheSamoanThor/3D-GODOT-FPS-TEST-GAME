@@ -1,10 +1,10 @@
 [gd_scene format=4 uid="uid://bcsska3ypsv03"]
 
-[ext_resource type="Script" uid="uid://de058tn7dcvi8" path="res://Meshes/Weapons/InitWeapon.gd" id="1_mjb0j"]
+[ext_resource type="Script" uid="uid://de058tn7dcvi8" path="res://scripts/Weapons/InitWeapon.gd" id="1_mjb0j"]
 [ext_resource type="Resource" uid="uid://bturtcl81qkwu" path="res://Meshes/Weapons/Ranged/Colt1911/Colt1911Resource.tres" id="2_7y78o"]
 [ext_resource type="Texture2D" uid="uid://bpbig0b6tdmpy" path="res://Meshes/Weapons/Ranged/Colt1911/psx_colt_1911_0.png" id="4_4rwgj"]
-[ext_resource type="Script" uid="uid://gkgs8mw5138x" path="res://Scripts/RecoilPosition.gd" id="4_wtodn"]
-[ext_resource type="Script" uid="uid://tixq3pn8kxwj" path="res://Scripts/MuzzleFlash.gd" id="5_7y78o"]
+[ext_resource type="Script" uid="uid://gkgs8mw5138x" path="res://scripts/Weapons/RecoilPosition.gd" id="4_wtodn"]
+[ext_resource type="Script" uid="uid://tixq3pn8kxwj" path="res://scripts/Weapons/MuzzleFlash.gd" id="5_7y78o"]
 
 [sub_resource type="Gradient" id="Gradient_lp4id"]
 

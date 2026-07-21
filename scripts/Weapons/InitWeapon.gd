@@ -24,6 +24,7 @@ signal weapon_fired
 @onready var muzzle_light : OmniLight3D = %OmniLight3D
 # MUST BE OFF IN THE SCENE TO AVOID UNNECESSARY LIGHT IN THE START OF LEVEL
 
+
 var mouse_movement : Vector2
 var random_sway_x
 var random_sway_y
@@ -33,8 +34,8 @@ var idle_sway_adjustment
 var idle_sway_rotation_strength
 var weapon_bob_amount: Vector2 = Vector2(0,0)
 
-var bullet_hole = preload("res://Meshes/Weapons/bullet_hole.tscn")
-var bullet_scene = preload("res://Meshes/Weapons/bullet.tscn")
+var bullet_hole = preload("res://scripts/Weapons/bullet_hole.tscn")
+var bullet_scene = preload("res://scripts/Weapons/bullet.tscn")
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -183,8 +184,7 @@ func _attack() -> void:
 		bullet.global_position = muzzle_flash_node.global_position
 		
 		# Передаем пуле её урон и вектор скорости (направление * скорость полета)
-		bullet.damage = WEAPON_TYPE.damage
-		bullet.velocity = final_direction * bullet.speed
+		bullet.init_bullet(WEAPON_TYPE.bullet_data, WEAPON_TYPE.damage, final_direction)
 		
 		# Поворачиваем меш пули по направлению полета, чтобы она летела носом вперед
 		bullet.look_at(bullet.global_position + final_direction)

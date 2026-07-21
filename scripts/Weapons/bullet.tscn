@@ -1,0 +1,31 @@
+[gd_scene format=3 uid="uid://cc0ql13cyp8kb"]
+
+[ext_resource type="Script" uid="uid://b4ffcdbpv3jic" path="res://scripts/Weapons/Bullet.gd" id="1_eg7qv"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_eg7qv"]
+radius = 0.01
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_eg7qv"]
+albedo_color = Color(1, 0.8509804, 0, 1)
+emission_enabled = true
+emission = Color(1, 0.6392157, 0, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_eg7qv"]
+material = SubResource("StandardMaterial3D_eg7qv")
+radius = 0.01
+height = 0.02
+
+[node name="Bullet" type="Area3D" unique_id=1970061367]
+script = ExtResource("1_eg7qv")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1733796442]
+shape = SubResource("SphereShape3D_eg7qv")
+
+[node name="VisualRig" type="Node3D" parent="." unique_id=1973893289]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="VisualRig" unique_id=386843162]
+unique_name_in_owner = true
+mesh = SubResource("SphereMesh_eg7qv")
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="VisualRig" unique_id=133859461]
+visible = false

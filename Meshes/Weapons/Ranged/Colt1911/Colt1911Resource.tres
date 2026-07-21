@@ -1,7 +1,8 @@
 [gd_resource type="Resource" script_class="Weapons" format=4 uid="uid://bturtcl81qkwu"]
 
 [ext_resource type="Texture2D" uid="uid://bpbig0b6tdmpy" path="res://Meshes/Weapons/Ranged/Colt1911/psx_colt_1911_0.png" id="1_cbjag"]
-[ext_resource type="Script" uid="uid://dd621cckf7hys" path="res://Meshes/Weapons/WeaponResource.gd" id="2_qqojx"]
+[ext_resource type="Resource" uid="uid://bosemm4u5pslw" path="res://scripts/Weapons/BasicBullet.tres" id="1_qqojx"]
+[ext_resource type="Script" uid="uid://dd621cckf7hys" path="res://scripts/Weapons/WeaponResource.gd" id="3_rykig"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_a78i7"]
 resource_name = "M_Colt1911"
@@ -45,7 +46,7 @@ blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_ots4b")
 
 [resource]
-script = ExtResource("2_qqojx")
+script = ExtResource("3_rykig")
 name = &"Colt1911"
 position = Vector3(0.065, -0.03, -0.12)
 rotation = Vector3(0, 180, 0)
@@ -56,4 +57,5 @@ sway_max = Vector2(5, 5)
 damage = 25.0
 range = 100.0
 muzzle_flash_position = Vector3(0, 0, 0.15)
+bullet_data = ExtResource("1_qqojx")
 metadata/_custom_type_script = "uid://dd621cckf7hys"

@@ -2,10 +2,36 @@ extends Area3D
 
 signal hit_registered(position: Vector3, normal: Vector3)
 
-var speed : float = 150.0
-var damage : float = 25.0
+# Сюда мы передадим настройки из оружия в момент спавна
+var data : BulletData
+var damage : float = 0.0
 var velocity : Vector3 = Vector3.ZERO
-var bullet_hole = preload("res://Meshes/Weapons/bullet_hole.tscn")
+
+@onready var mesh_instance : MeshInstance3D = %MeshInstance3D
+
+func init_bullet(bullet_settings: BulletData, weapon_damage: float, direction: Vector3) -> void:
+	data = bullet_settings
+	damage = weapon_damage
+	
+	# Считаем вектор стартовой скорости на основе ресурса
+	velocity = direction * data.speed
+	
+	# Перестраиваем визуал пули "на лету" под требования ресурса
+	if data.model_mesh:
+		# Если в ресурсе есть готовая 3D-модель (например, стрела), используем её
+		mesh_instance.mesh = data.model_mesh
+	else:
+		# Если модели нет, генерируем стандартный светящийся лазерный трассер
+		var default_box = BoxMesh.new()
+		default_box.size = data.trail_size
+		mesh_instance.mesh = default_box
+		
+		# Создаем яркий несгораемый материал (Unshaded)
+		var mat = StandardMaterial3D.new()
+		mat.albedo_color = data.trail_color
+		mat.shading_mode = StandardMaterial3D.SHADING_MODE_UNSHADED
+		mesh_instance.material_override = mat
+
 
 func _ready() -> void:
 	# Подключаем проверку столкновений
@@ -14,11 +40,13 @@ func _ready() -> void:
 	get_tree().create_timer(4.0).timeout.connect(queue_free)
 
 func _physics_process(delta: float) -> void:
-	# Двигаем пулю вперед по её собственному вектору направления
-	global_position += velocity * delta
+	if not data: return
 	
-	# Небольшая гравитация ( +- физика полета )
-	velocity.y -= 9.8 * delta
+	# Двигаем пулю
+	global_position += velocity * delta
+	# Применяем гравитацию с учетом модификатора из ресурса (например, стрела падает быстрее лазера)
+	velocity.y -= (9.8 * data.gravity_modifier) * delta
+
 
 func _on_body_entered(body: Node) -> void:
 	# Игнорируем игрока, если пуля вылетела из него

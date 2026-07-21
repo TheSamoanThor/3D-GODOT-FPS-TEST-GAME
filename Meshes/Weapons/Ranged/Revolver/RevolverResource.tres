@@ -1,9 +1,10 @@
 [gd_resource type="Resource" script_class="Weapons" format=4 uid="uid://dlmgbp1xs2sxw"]
 
 [ext_resource type="Texture2D" uid="uid://vuas8kwta5u" path="res://Meshes/Weapons/Ranged/Revolver/Revolver_TEST_TEXTURE_МеталлРама Основной цвет.png" id="1_8uyhw"]
+[ext_resource type="Resource" uid="uid://bosemm4u5pslw" path="res://scripts/Weapons/BasicBullet.tres" id="1_hlhx7"]
 [ext_resource type="Texture2D" uid="uid://cxi2k6o11vjoy" path="res://Meshes/Weapons/Ranged/Revolver/Revolver_TEST_TEXTURE_Дерево Основной цвет.png" id="2_hlhx7"]
 [ext_resource type="Texture2D" uid="uid://6uqyfjmgbl3o" path="res://Meshes/Weapons/Ranged/Revolver/Revolver_TEST_TEXTURE_ЖелезоБолт Основной цвет.png" id="3_oquu2"]
-[ext_resource type="Script" uid="uid://dd621cckf7hys" path="res://Meshes/Weapons/WeaponResource.gd" id="4_77efp"]
+[ext_resource type="Script" uid="uid://dd621cckf7hys" path="res://scripts/Weapons/WeaponResource.gd" id="4_77efp"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qg7k7"]
 resource_name = "МеталлРама"
@@ -119,4 +120,5 @@ sway_max = Vector2(5, 5)
 damage = 25.0
 range = 100.0
 muzzle_flash_position = Vector3(0, -2, -1.1)
+bullet_data = ExtResource("1_hlhx7")
 metadata/_custom_type_script = "uid://dd621cckf7hys"

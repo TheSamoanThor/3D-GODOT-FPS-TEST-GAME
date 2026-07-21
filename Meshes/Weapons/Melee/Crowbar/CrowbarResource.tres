@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="Weapons" format=4 uid="uid://cr8kkbwvjnmfu"]
 
-[ext_resource type="Script" uid="uid://dd621cckf7hys" path="res://Meshes/Weapons/WeaponResource.gd" id="1_3adqx"]
+[ext_resource type="Script" uid="uid://dd621cckf7hys" path="res://scripts/Weapons/WeaponResource.gd" id="1_3adqx"]
 [ext_resource type="Texture2D" uid="uid://b80vm2xxfac8n" path="res://Meshes/Weapons/Melee/Crowbar/crowbar_v2_0.png" id="1_qm0fq"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_m65jv"]
