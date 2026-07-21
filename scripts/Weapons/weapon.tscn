@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://de058tn7dcvi8" path="res://scripts/Weapons/InitWeapon.gd" id="1_mjb0j"]
 [ext_resource type="Resource" uid="uid://bturtcl81qkwu" path="res://Meshes/Weapons/Ranged/Colt1911/Colt1911Resource.tres" id="2_7y78o"]
 [ext_resource type="Texture2D" uid="uid://bpbig0b6tdmpy" path="res://Meshes/Weapons/Ranged/Colt1911/psx_colt_1911_0.png" id="4_4rwgj"]
+[ext_resource type="ArrayMesh" uid="uid://buuho3bxsf243" path="res://Meshes/Weapons/Ranged/Colt1911/colt1911_mesh.res" id="4_aa5i2"]
 [ext_resource type="Script" uid="uid://gkgs8mw5138x" path="res://scripts/Weapons/RecoilPosition.gd" id="4_wtodn"]
 [ext_resource type="Script" uid="uid://tixq3pn8kxwj" path="res://scripts/Weapons/MuzzleFlash.gd" id="5_7y78o"]
 
@@ -88,6 +89,10 @@ particles_anim_loop = false
 material = SubResource("StandardMaterial3D_4rwgj")
 size = Vector2(0.05, 0.05)
 
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_55bfu"]
+height = 0.5
+radius = 0.15
+
 [node name="Weapon" type="Node3D" unique_id=1240987764]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0.065, -0.03, -0.12)
 script = ExtResource("1_mjb0j")
@@ -106,7 +111,7 @@ unique_name_in_owner = true
 transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 0, 0)
 layers = 2
 cast_shadow = 0
-mesh = SubResource("ArrayMesh_cbjag")
+mesh = ExtResource("4_aa5i2")
 
 [node name="WeaponShadow" type="MeshInstance3D" parent="RecoilPosition" unique_id=1492836580]
 unique_name_in_owner = true
@@ -136,3 +141,11 @@ one_shot = true
 explosiveness = 0.95
 process_material = SubResource("ParticleProcessMaterial_7y78o")
 draw_pass_1 = SubResource("QuadMesh_7y78o")
+
+[node name="MeleeArea" type="Area3D" parent="." unique_id=391557075]
+unique_name_in_owner = true
+monitoring = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MeleeArea" unique_id=1000586068]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0)
+shape = SubResource("CylinderShape3D_55bfu")

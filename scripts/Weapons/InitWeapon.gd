@@ -22,6 +22,7 @@ signal weapon_fired
 @onready var weapon_shadow : MeshInstance3D = %WeaponShadow
 @onready var muzzle_flash_node : Node3D = %MuzzleFlash
 @onready var muzzle_light : OmniLight3D = %OmniLight3D
+@onready var melee_area : Area3D = %MeleeArea
 # MUST BE OFF IN THE SCENE TO AVOID UNNECESSARY LIGHT IN THE START OF LEVEL
 
 
@@ -188,6 +189,48 @@ func _attack() -> void:
 		
 		# Поворачиваем меш пули по направлению полета, чтобы она летела носом вперед
 		bullet.look_at(bullet.global_position + final_direction)
+	if WEAPON_TYPE.isMelee:
+		if WEAPON_TYPE.isArealMelee:
+			print('1')
+			# Включаем физическую зону сбора коллизий
+			melee_area.monitoring = true
+			
+			# Собираем всех врагов, которые оказались внутри зоны в этот момент
+			var targets = melee_area.get_overlapping_bodies()
+			
+			for body in targets:
+				print('2')
+				# Игнорируем самого себя
+				if body == global.player:
+					continue
+				print('ok')
+				# Спавним искры или кровь в точке соприкосновения
+				# (Для Area3D точную точку можно взять как global_position врага)
+				_bullet_hole(body.global_position, Vector3.UP)
+			
+			# Ждем 0.1–0.2 секунды (время активной фазы удара) и выключаем зону обратно
+			await get_tree().create_timer(0.15).timeout
+			melee_area.monitoring = false
+		elif !WEAPON_TYPE.isArealMelee:
+			var camera = global.player.CAMERA_CONTROLLER
+			var space_state = camera.get_world_3d().direct_space_state
+			
+			# Берем центр видимой игровой области, а не физического окна
+			var screen_center = get_viewport().get_visible_rect().size / 2
+			
+			var origin = camera.project_ray_origin(screen_center)
+			var end = origin + camera.project_ray_normal(screen_center) * WEAPON_TYPE.range
+			
+			var query = PhysicsRayQueryParameters3D.create(origin, end)
+			query.collide_with_bodies = true
+			
+			# Дополнительно исключаем самого игрока из проверки коллизий, 
+			# чтобы луч случайно не врезался в хитбокс персонажа изнутри
+			query.exclude = [global.player.get_rid()] 
+			
+			var result = space_state.intersect_ray(query)
+			if result:
+				_bullet_hole(result.get("position"), result.get("normal"))
 
 # old func to create bullet holes spawning a bullet hole scene
 #func _bullet_hole(hit_position: Vector3, hit_normal: Vector3) -> void:

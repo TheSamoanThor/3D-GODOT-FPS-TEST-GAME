@@ -24,7 +24,8 @@ class_name Weapons extends Resource
 
 @export_category("Feature Settings")
 @export var damage : float
-@export var isMelee : bool
+@export var isMelee : bool = false
+@export var isArealMelee : bool = false
 @export var range : float
 @export var isRayWeapon: bool = false
 
