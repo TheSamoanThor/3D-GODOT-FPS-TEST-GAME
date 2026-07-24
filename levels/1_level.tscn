@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://cohh7c24knxjt"]
 
-[ext_resource type="PackedScene" uid="uid://bq8ow52131jdw" path="res://controllers/fps_controls.tscn" id="1_i7jyh"]
+[ext_resource type="PackedScene" uid="uid://bq8ow52131jdw" path="res://Controllers/fps_controls.tscn" id="1_i7jyh"]
+[ext_resource type="Script" uid="uid://b4nw6yte5dquf" path="res://Scripts/InteractionComponent.gd" id="2_0tnhd"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_heknc"]
 
@@ -66,13 +67,13 @@ size = Vector3(5, 1, 1)
 material = SubResource("StandardMaterial3D_hj2ab")
 size = Vector3(5, 1, 1)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_v2cje"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_i7jyh"]
 size = Vector3(5, 1, 1)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8adi3"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0tnhd"]
 
-[sub_resource type="BoxMesh" id="BoxMesh_prnk2"]
-material = SubResource("StandardMaterial3D_8adi3")
+[sub_resource type="BoxMesh" id="BoxMesh_i4ppk"]
+material = SubResource("StandardMaterial3D_0tnhd")
 size = Vector3(5, 1, 1)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_plumh"]
@@ -109,6 +110,15 @@ size = Vector3(5, 15, 5)
 material = SubResource("StandardMaterial3D_0hoct")
 size = Vector3(5, 15, 5)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_0tnhd"]
+size = Vector3(5, 1, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_i4ppk"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_refv5"]
+material = SubResource("StandardMaterial3D_i4ppk")
+size = Vector3(5, 1, 1)
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_q1tvk"]
 emission_enabled = true
 emission = Color(1, 1, 1, 1)
@@ -118,6 +128,20 @@ emission_energy_multiplier = 10.0
 material = SubResource("StandardMaterial3D_q1tvk")
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_v6gf6"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_refv5"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_refv5"]
+transparency = 1
+albedo_color = Color(1, 1, 1, 0.6)
+emission_enabled = true
+emission = Color(1, 1, 1, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8adi3"]
+albedo_color = Color(1, 0.4392157, 0, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_yppfu"]
+material = SubResource("StandardMaterial3D_8adi3")
 
 [node name="Node3D" type="Node3D" unique_id=1830387855]
 
@@ -190,11 +214,11 @@ mesh = SubResource("BoxMesh_0hoct")
 transform = Transform3D(0.45424128, -0.17629509, -0.873261, -0.0195713, 0.97801316, -0.20762292, 0.89066374, 0.11140178, 0.44080368, 10.5790205, 10.206318, -4.328018)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="LevelObjects/Branch" unique_id=287658547]
-shape = SubResource("BoxShape3D_v2cje")
+shape = SubResource("BoxShape3D_i7jyh")
 
 [node name="Branch" type="MeshInstance3D" parent="LevelObjects/Branch" unique_id=151253898]
 transform = Transform3D(1.0000001, 0, -7.450581e-09, -1.8544246e-09, 1, 1.748049e-10, -1.4901161e-08, -1.4901161e-08, 1, 0, 0, 0)
-mesh = SubResource("BoxMesh_prnk2")
+mesh = SubResource("BoxMesh_i4ppk")
 
 [node name="Platform2" type="StaticBody3D" parent="LevelObjects" unique_id=783475492]
 transform = Transform3D(0.99216276, 0, -0.12495229, 0, 1, 0, 0.12495229, 0, 0.99216276, -15.179849, 14.697712, 0)
@@ -238,11 +262,11 @@ mesh = SubResource("BoxMesh_plumh")
 transform = Transform3D(-0.7189067, -0.6378834, 0.2761861, -0.67008847, 0.74161863, -0.03137269, -0.18481293, -0.20762315, -0.96059316, 5.741246, 2.0236874, -5.0964527)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="LevelObjects/Branch3" unique_id=691321808]
-shape = SubResource("BoxShape3D_v2cje")
+shape = SubResource("BoxShape3D_0tnhd")
 
 [node name="Branch" type="MeshInstance3D" parent="LevelObjects/Branch3" unique_id=1455361766]
 transform = Transform3D(1.0000001, 0, -7.450581e-09, -1.8544246e-09, 1, 1.748049e-10, -1.4901161e-08, -1.4901161e-08, 1, 0, 0, 0)
-mesh = SubResource("BoxMesh_prnk2")
+mesh = SubResource("BoxMesh_refv5")
 
 [node name="LightSphere" type="StaticBody3D" parent="LevelObjects" unique_id=1220713533]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, 0)
@@ -259,3 +283,19 @@ shadow_enabled = true
 shadow_blur = 0.0
 distance_fade_enabled = true
 omni_range = 26.0
+
+[node name="Box" type="StaticBody3D" parent="LevelObjects" unique_id=652341379]
+transform = Transform3D(1.0000006, 0, 0, 0, 1.0000004, 0, 0, 0, 1.0000011, 0, 0.5, 2.5)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LevelObjects/Box" unique_id=1302186528]
+shape = SubResource("BoxShape3D_refv5")
+
+[node name="Branch" type="MeshInstance3D" parent="LevelObjects/Box" unique_id=757299705]
+transform = Transform3D(1.0000001, 0, -7.450581e-09, -1.8544246e-09, 1, 1.748049e-10, -1.4901161e-08, -1.4901161e-08, 1, 0, 0, 0)
+material_overlay = SubResource("StandardMaterial3D_refv5")
+mesh = SubResource("BoxMesh_yppfu")
+
+[node name="InteractionComponent" type="Node" parent="LevelObjects/Box" unique_id=1806599085 node_paths=PackedStringArray("highlight_mesh")]
+script = ExtResource("2_0tnhd")
+highlight_mesh = NodePath("../Branch")
+metadata/_custom_type_script = "uid://b4nw6yte5dquf"

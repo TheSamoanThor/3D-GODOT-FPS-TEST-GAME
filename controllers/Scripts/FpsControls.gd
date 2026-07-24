@@ -21,6 +21,7 @@ var _tilt_input : float
 var _current_rotation : float
 
 var interaction_cast_result
+var current_cast_result
 
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("exit"):
@@ -122,8 +123,8 @@ func _process(delta: float) -> void:
 
 
 func interact() -> void:
-	if interaction_cast_result:
-		print(interaction_cast_result)
+	if interaction_cast_result and interaction_cast_result.has_user_signal("interacted"):
+		interaction_cast_result.emit_signal("interacted")
 
 func interact_cast() -> void:
 	# stole raycast code from attack func
@@ -143,5 +144,15 @@ func interact_cast() -> void:
 	
 	var result = space_state.intersect_ray(query)
 	
+	# to get rid of highlight when obj is not "selected"
+	current_cast_result = null 
+	
 	if result:
-		interaction_cast_result = result.get("collider")
+		current_cast_result = result.get("collider")
+	
+	if current_cast_result != interaction_cast_result:
+		if interaction_cast_result and interaction_cast_result.has_user_signal("unfocused"):
+			interaction_cast_result.emit_signal("unfocused")
+		interaction_cast_result = current_cast_result
+		if interaction_cast_result and interaction_cast_result.has_user_signal("focused"):
+			interaction_cast_result.emit_signal("focused")
