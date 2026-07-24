@@ -191,26 +191,16 @@ func _attack() -> void:
 		bullet.look_at(bullet.global_position + final_direction)
 	if WEAPON_TYPE.isMelee:
 		if WEAPON_TYPE.isArealMelee:
-			print('1')
-			# Включаем физическую зону сбора коллизий
-			melee_area.monitoring = true
-			
 			# Собираем всех врагов, которые оказались внутри зоны в этот момент
 			var targets = melee_area.get_overlapping_bodies()
 			
 			for body in targets:
-				print('2')
 				# Игнорируем самого себя
-				if body == global.player:
+				if body == global.player or body.get_rid() == global.player.get_rid():
 					continue
-				print('ok')
 				# Спавним искры или кровь в точке соприкосновения
 				# (Для Area3D точную точку можно взять как global_position врага)
-				_bullet_hole(body.global_position, Vector3.UP)
-			
-			# Ждем 0.1–0.2 секунды (время активной фазы удара) и выключаем зону обратно
-			await get_tree().create_timer(0.15).timeout
-			melee_area.monitoring = false
+				_bullet_hole(body.global_position, Vector3.UP) # doesnt work :/
 		elif !WEAPON_TYPE.isArealMelee:
 			var camera = global.player.CAMERA_CONTROLLER
 			var space_state = camera.get_world_3d().direct_space_state

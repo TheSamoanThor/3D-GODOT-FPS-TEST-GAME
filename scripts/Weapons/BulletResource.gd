@@ -6,5 +6,5 @@ class_name BulletData extends Resource
 @export var trail_size : Vector3 = Vector3(0.05, 0.05, 0.4) # Размеры меша пули
 
 @export_category("Bullet Physics")
-@export var speed : float = 150.0           # Скорость полета снаряда
+@export var speed : float = 100.0           # Скорость полета снаряда
 @export var gravity_modifier : float = 1.0  # Насколько сильно падает пуля (0 - летит прямо)

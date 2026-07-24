@@ -21,14 +21,15 @@ func init_bullet(bullet_settings: BulletData, weapon_damage: float, direction: V
 		# Если в ресурсе есть готовая 3D-модель (например, стрела), используем её
 		mesh_instance.mesh = data.model_mesh
 	else:
-		# Если модели нет, генерируем стандартный светящийся лазерный трассер
-		var default_box = BoxMesh.new()
-		default_box.size = data.trail_size
-		mesh_instance.mesh = default_box
+		# Генерируем желтый шар радиусом 0.1
+		var default_sphere = SphereMesh.new()
+		default_sphere.radius = 0.01
+		default_sphere.height = 0.02 # Высота шара (диаметр) равна radius * 2
+		mesh_instance.mesh = default_sphere
 		
-		# Создаем яркий несгораемый материал (Unshaded)
+		# Создаем яркий желтый материал
 		var mat = StandardMaterial3D.new()
-		mat.albedo_color = data.trail_color
+		mat.albedo_color = Color(1, 1, 0) # Желтый цвет (RGB)
 		mat.shading_mode = StandardMaterial3D.SHADING_MODE_UNSHADED
 		mesh_instance.material_override = mat
 
