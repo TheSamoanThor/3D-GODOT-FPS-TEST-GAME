@@ -1,12 +1,14 @@
-class_name JumpingPlayerState
-extends PlayerMovementState
+class_name JumpingPlayerState extends PlayerMovementState
+
 
 @export var SPEED : float = 5.0
 @export var ACCELERATION : float = 0.1
 @export var DECELERATION : float = 0.25
-
 @export var MAX_JUMPS : int = 2 # Total allowed jumps (1 = normal jump, 2 = double jump)
+
+
 var current_jump_count : int = 0
+
 
 func enter(previous_state) -> void:
 	# Reset the counter and perform the first initial jump
@@ -14,7 +16,8 @@ func enter(previous_state) -> void:
 	ANIMATION.play("jumpStart")
 	perform_jump()
 
-func update(delta: float) -> void:
+
+func physics_update(delta: float) -> void:
 	PLAYER.update_gravity(delta)
 	
 	# Keep drifting/steering controls in the air
@@ -38,6 +41,7 @@ func update(delta: float) -> void:
 				transition.emit("WalkingPlayerState")
 		else:
 			transition.emit("IdlePlayerState")
+
 
 # Helper function to apply upward velocity and play audio/effects if needed
 func perform_jump() -> void:

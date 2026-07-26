@@ -1,5 +1,5 @@
-class_name CrouchingPlayerState
-extends PlayerMovementState
+class_name CrouchingPlayerState extends PlayerMovementState
+
 
 @export var SPEED : float = 3.0
 @export var ACCELERATION : float = 0.1
@@ -10,9 +10,14 @@ extends PlayerMovementState
 @export var WEAPON_BOB_HORIS : float = 1.0
 @export var WEAPON_BOB_VERT : float = 0.5
 
+
 var RELEASED : bool = false
 
+
 func enter(previous_state) -> void:
+	WEAPON.bob_speed = WEAPON_BOB_SPD
+	WEAPON.bob_horizontal = WEAPON_BOB_HORIS
+	WEAPON.bob_vertical = WEAPON_BOB_VERT
 	ANIMATION.speed_scale = 1.0
 	# FIXED: previous_state is an Object, it doesn't have a '.name' property. 
 	# Checked using 'is' keyword or state class verification.
@@ -22,22 +27,26 @@ func enter(previous_state) -> void:
 		ANIMATION.current_animation = "crouching"
 		ANIMATION.seek(1.0, true)
 
+
 func exit() -> void:
 	RELEASED = false
 
-func update(delta) -> void:
+
+func update(delta: float) -> void:
+	var is_moving: bool = PLAYER.velocity.length() > 0.1
+
+
+func physics_update(delta) -> void:
 	PLAYER.update_gravity(delta)
 	PLAYER.update_input(SPEED, ACCELERATION, DECELERATION)
 	PLAYER.update_velocity()
-	
-	WEAPON.sway_weapon(delta, false)
-	WEAPON._weapon_bob(delta, WEAPON_BOB_SPD, WEAPON_BOB_HORIS, WEAPON_BOB_VERT)
 	
 	if Input.is_action_just_released("crouch"):
 		uncrouch()
 	elif Input.is_action_pressed("crouch") == false and RELEASED == false:
 		RELEASED = true
 		uncrouch()
+
 
 func uncrouch():
 	# Check if Shapecast detects low ceiling before standing up

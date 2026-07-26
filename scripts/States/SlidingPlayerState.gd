@@ -1,5 +1,5 @@
-class_name SlidingPlayerState 
-extends PlayerMovementState
+class_name SlidingPlayerState extends PlayerMovementState
+
 
 @export var SPEED: float = 6.0
 @export var ACCELERATION : float = 0.1
@@ -7,6 +7,7 @@ extends PlayerMovementState
 @export var TILT_AMOUNT : float = 0.09
 @export_range(1, 6, 0.1) var SLIDE_ANIM_SPEED : float = 4.0
 @onready var CROUCH_SHAPECAST : ShapeCast3D = %ShapeCast3D
+
 
 func enter(previous_state) -> void:
 	set_tilt(PLAYER._current_rotation)
@@ -17,16 +18,18 @@ func enter(previous_state) -> void:
 	var speed_track = anim.find_track("CameraController:position", Animation.TYPE_VALUE) 
 	if speed_track != -1:
 		anim.track_set_key_value(speed_track, 0, PLAYER.velocity.length())
-		
+	
 	ANIMATION.speed_scale = 1.0
 	ANIMATION.play("sliding", -1.0, SLIDE_ANIM_SPEED)
-	
-func update(delta):
+
+
+func physics_update(delta):
 	PLAYER.update_gravity(delta)
 	# Disabling or low values here help maintain direction while sliding
 	PLAYER.update_input(SPEED, ACCELERATION, DECELERATION) 
 	PLAYER.update_velocity()
-	
+
+
 func set_tilt(player_rotation) -> void:
 	var tilt = Vector3.ZERO
 	# Use rotation input to calculate lateral camera tilt during slide
@@ -42,9 +45,11 @@ func set_tilt(player_rotation) -> void:
 			anim.track_set_key_value(rotation_track, 1, tilt)
 			anim.track_set_key_value(rotation_track, 2, tilt)
 
+
 func finish():
 	# Clean transition back to crouching once the slide function track triggers this method
 	transition.emit("CrouchingPlayerState")
+
 
 func exit() -> void:
 	# RESET CAMERA TILT: Ensures the camera returns to perfectly straight alignment

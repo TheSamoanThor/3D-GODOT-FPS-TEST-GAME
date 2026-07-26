@@ -31,6 +31,13 @@ func on_child_transition(new_state_name: StringName) -> void:
 	if new_state != null:
 		if new_state != CURR_STATE:
 			CURR_STATE.exit()
+			
+			# ЗАЩИТА: Если мы приземляемся и переходим в Idle, 
+			# мгновенно гасим горизонтальную скорость, чтобы исключить скольжение по инерции
+			if new_state_name == &"IdlePlayerState" and owner is CharacterBody3D:
+				owner.velocity.x = 0.0
+				owner.velocity.z = 0.0
+			
 			new_state.enter(CURR_STATE)
 			CURR_STATE = new_state
 	else:

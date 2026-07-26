@@ -1,5 +1,5 @@
-class_name SprintingPlayerState 
-extends PlayerMovementState
+class_name SprintingPlayerState extends PlayerMovementState
+
 
 @export var SPEED : float = 7.0
 @export var ACCELERATION : float = 0.15
@@ -9,15 +9,27 @@ extends PlayerMovementState
 @export var WEAPON_BOB_HORIS : float = 1.5
 @export var WEAPON_BOB_VERT : float = 0.75
 
+
 func enter(previous_state) -> void:
+	WEAPON.bob_speed = WEAPON_BOB_SPD
+	WEAPON.bob_horizontal = WEAPON_BOB_HORIS
+	WEAPON.bob_vertical = WEAPON_BOB_VERT
 	if ANIMATION.is_playing() and ANIMATION.current_animation == "jumpEnd":
 		await ANIMATION.animation_finished
 	ANIMATION.play('sprinting', 0.5, 1.0)
 
+
 func exit() -> void:
 	ANIMATION.speed_scale = 1.0
 
+
 func update(delta: float) -> void:
+	set_anim_speed(PLAYER.velocity.length())
+	WEAPON.sway_weapon(delta, false)
+	WEAPON._weapon_bob(delta, WEAPON_BOB_SPD, WEAPON_BOB_HORIS, WEAPON_BOB_VERT)
+
+
+func physics_update(delta: float) -> void:
 	# 1. Tick the coyote clock inherited from PlayerMovementState
 	process_coyote_time(delta)
 	
@@ -25,11 +37,7 @@ func update(delta: float) -> void:
 	PLAYER.update_gravity(delta)
 	PLAYER.update_input(SPEED, ACCELERATION, DECELERATION)
 	PLAYER.update_velocity()
-	set_anim_speed(PLAYER.velocity.length())
-	
-	WEAPON.sway_weapon(delta, false)
-	WEAPON._weapon_bob(delta, WEAPON_BOB_SPD, WEAPON_BOB_HORIS, WEAPON_BOB_VERT)
-	
+		
 	# 3. Jump input handling using the active coyote time window during sprint
 	if Input.is_action_just_pressed("jump") and can_coyote_jump():
 		transition.emit("JumpingPlayerState")
@@ -50,6 +58,7 @@ func update(delta: float) -> void:
 		if Input.is_action_just_pressed("crouch") and PLAYER.velocity.length() > 6.0:
 			transition.emit("SlidingPlayerState")
 			return
+
 
 func set_anim_speed(spd: float) -> void:
 	# If the AnimationPlayer is still blending or processing 'jumpEnd',

@@ -35,6 +35,10 @@ var idle_sway_adjustment
 var idle_sway_rotation_strength
 var weapon_bob_amount: Vector2 = Vector2(0,0)
 
+var bob_speed : float = 0.0
+var bob_horizontal : float = 0.0
+var bob_vertical : float = 0.0
+
 var bullet_hole = preload("res://scripts/Weapons/bullet_hole.tscn")
 var bullet_scene = preload("res://scripts/Weapons/bullet.tscn")
 

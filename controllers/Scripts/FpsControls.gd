@@ -1,5 +1,6 @@
 class_name Player extends CharacterBody3D
 
+
 @export var JUMP_VELOCITY : float = 4.5
 # Mouse sensitivity (low value like 0.002 is best since we don't multiply by delta)
 @export var MOUSE_SENSITIVITY : float = 0.005
@@ -12,6 +13,7 @@ class_name Player extends CharacterBody3D
 @export var WEAPON_CONTROLLER : WeaponController
 @export var interact_distance : float = 2.0
 
+
 var _speed : float
 var _mouse_input : bool = false
 var _mouse_rotation : Vector3
@@ -23,6 +25,7 @@ var _current_rotation : float
 var interaction_cast_result
 var current_cast_result
 
+
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("exit"):
 		get_tree().quit()
@@ -31,18 +34,20 @@ func _input(event: InputEvent) -> void:
 	if Input.is_action_just_pressed("attack"):
 		WEAPON_CONTROLLER._attack()
 
+
 func _unhandled_input(event: InputEvent) -> void:
 	_mouse_input = event is InputEventMouseMotion and Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED
 	if _mouse_input:
-		_rotation_input = -event.relative.x * MOUSE_SENSITIVITY
-		_tilt_input = -event.relative.y * MOUSE_SENSITIVITY
+		_rotation_input -= event.relative.x * MOUSE_SENSITIVITY
+		_tilt_input -= event.relative.y * MOUSE_SENSITIVITY
+
 
 func _physics_process(delta: float) -> void:
 	global.debug.add_property("RealSpeed", velocity.length(), 1)
 	global.debug.add_property("RealSpeedVect", get_real_velocity(), 2)
 	global.debug.add_property("Animation", ANIMATIONPLAYER.current_animation, 2)
 	global.debug.add_property("Rotation", rotation, 2)
-	_update_camera()
+
 
 func _update_camera():
 	_mouse_rotation.x += _tilt_input
@@ -59,9 +64,6 @@ func _update_camera():
 	# if you want animation track keys (tilting) to work smoothly. 
 	# The AnimationPlayer will override it, but it's cleaner to handle reset in exit()
 	rotation.z = 0.0
-	
-	_rotation_input = 0.0
-	_tilt_input = 0.0
 
 
 func _ready() -> void:
@@ -74,56 +76,100 @@ func _ready() -> void:
 	if CROUCH_SHAPECAST != null:
 		CROUCH_SHAPECAST.add_exception(self)
 
+
 func update_gravity(delta: float) -> void:
 	velocity += get_gravity() * delta
+
 
 # Movement logic optimized to receive physics parameters directly from states
 func update_input(speed: float, acceleration: float, deceleration: float) -> void:
 	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
 	var direction := (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	
+	# Используем встроенный в Godot метод get_physics_process_delta_time()
+	var p_delta = get_physics_process_delta_time()
+	
 	if direction:
-		velocity.x = lerp(velocity.x, direction.x * speed, acceleration)
-		velocity.z = lerp(velocity.z, direction.z * speed, acceleration)
+		velocity.x = lerp(velocity.x, direction.x * speed, acceleration * 60.0 * p_delta)
+		velocity.z = lerp(velocity.z, direction.z * speed, acceleration * 60.0 * p_delta)
 	else:
-		velocity.x = move_toward(velocity.x, 0, deceleration)
-		velocity.z = move_toward(velocity.z, 0, deceleration)
+		velocity.x = move_toward(velocity.x, 0, deceleration * 60.0 * p_delta)
+		velocity.z = move_toward(velocity.z, 0, deceleration * 60.0 * p_delta)
+
 
 func update_velocity() -> void:
 	move_and_slide()
+
+
+# old func just for example)))
+#func _process(delta: float) -> void:
+	#if WEAPON_CONTROLLER == null:
+		#return
+	#
+	#_update_camera()
+	#
+	## 1. Определяем, стоит игрок или идет
+	#var is_idle: bool = velocity.length() < 0.2
+	#
+	## 2. Если игрок идет, рассчитываем боббинг (покачивание шагов)
+	#if not is_idle:
+		## Параметры: delta, скорость шагов, качание по X, качание по Y
+		#WEAPON_CONTROLLER._weapon_bob(delta, 10.0, 0.04, 0.02)
+	#
+	## 3. Передаем ввод мыши напрямую в оружие, используя закешированное значение!
+	## Так как оригинальный инпут зануляется физикой, мы берем относительное движение камеры
+	#if _current_rotation != 0.0 or _tilt_input != 0.0:
+		## Восстанавливаем вектор движения мыши для оружия
+		## Делим на SENSITIVITY, чтобы вернуть чистые пиксели движения, которые ждет оружие
+		#WEAPON_CONTROLLER.mouse_movement = Vector2(
+			#-_current_rotation / MOUSE_SENSITIVITY, 
+			#-_tilt_input / MOUSE_SENSITIVITY
+		#)
+	#
+	## 4. Вызываем свей оружия ОДИН раз для всех состояний
+	#WEAPON_CONTROLLER.sway_weapon(delta, is_idle)
+	#
+	#interact_cast()
+	#
+	#_rotation_input = 0.0
+	#_tilt_input = 0.0
+
 
 func _process(delta: float) -> void:
 	if WEAPON_CONTROLLER == null:
 		return
 		
-	# 1. Определяем, стоит игрок или идет
+	# 1. Проверяем движение персонажа прямо в графическом кадре через инпут
 	var is_idle: bool = velocity.length() < 0.2
 	
-	# 2. Если игрок идет, рассчитываем боббинг (покачивание шагов)
+	# 2. Если игрок идет, стейт-машина сама настроит параметры WEAPON_CONTROLLER
+	# А этот код просто плавно крутит счетчик времени анимации оружия
 	if not is_idle:
-		# Параметры: delta, скорость шагов, качание по X, качание по Y
-		# Вы можете настроить эти цифры под ваш вкус
-		WEAPON_CONTROLLER._weapon_bob(delta, 10.0, 0.04, 0.02)
+		# Вызываем ОДИН раз для всех состояний ходьбы/приседа/бега
+		WEAPON_CONTROLLER._weapon_bob(delta, WEAPON_CONTROLLER.bob_speed, WEAPON_CONTROLLER.bob_horizontal, WEAPON_CONTROLLER.bob_vertical)
 	
-	# 3. Передаем ввод мыши напрямую в оружие, используя закешированное значение!
-	# Так как оригинальный инпут зануляется физикой, мы берем относительное движение камеры
+	# 3. Передаем ввод мыши для увода оружия (Sway)
 	if _current_rotation != 0.0 or _tilt_input != 0.0:
-		# Восстанавливаем вектор движения мыши для оружия
-		# Делим на SENSITIVITY, чтобы вернуть чистые пиксели движения, которые ждет оружие
 		WEAPON_CONTROLLER.mouse_movement = Vector2(
 			-_current_rotation / MOUSE_SENSITIVITY, 
 			-_tilt_input / MOUSE_SENSITIVITY
 		)
 	
-	# 4. Вызываем свей оружия ОДИН раз для всех состояний прямо отсюда
+	# 4. Вызываем обновление положения оружия
 	WEAPON_CONTROLLER.sway_weapon(delta, is_idle)
 	
+	# Оставляем ваш рейкаст интеракта
 	interact_cast()
+	_update_camera()
+	
+	_rotation_input = 0.0
+	_tilt_input = 0.0
 
 
 func interact() -> void:
 	if interaction_cast_result and interaction_cast_result.has_user_signal("interacted"):
 		interaction_cast_result.emit_signal("interacted")
+
 
 func interact_cast() -> void:
 	# stole raycast code from attack func
