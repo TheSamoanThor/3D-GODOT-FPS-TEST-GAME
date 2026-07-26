@@ -12,7 +12,13 @@ class_name Player extends CharacterBody3D
 @export var CROUCH_SHAPECAST : ShapeCast3D
 @export var WEAPON_CONTROLLER : WeaponController
 @export var interact_distance : float = 2.0
+@export var grapple_distance : float = 100.0
+@export var can_grapple : bool = true
+@export var grapple_speed : float = 15.0
 
+
+var is_grappling : bool = false
+var grapple_target_point : Vector3
 
 var _speed : float
 var _mouse_input : bool = false
@@ -33,6 +39,8 @@ func _input(event: InputEvent) -> void:
 		interact()
 	if Input.is_action_just_pressed("attack"):
 		WEAPON_CONTROLLER._attack()
+	if Input.is_action_just_pressed("special_ability") and can_grapple:
+		grapple()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -47,6 +55,26 @@ func _physics_process(delta: float) -> void:
 	global.debug.add_property("RealSpeedVect", get_real_velocity(), 2)
 	global.debug.add_property("Animation", ANIMATIONPLAYER.current_animation, 2)
 	global.debug.add_property("Rotation", rotation, 2)
+	
+	if is_grappling:
+		# Вычисляем направление от игрока к точке зацепа
+		var direction = (grapple_target_point - global_position).normalized()
+		
+		# Плавно разгоняем velocity в сторону точки
+		velocity = velocity.lerp(direction * grapple_speed, 10.0 * delta)
+		
+		# ПРЕДОХРАНИТЕЛЬ: Если мы подлетели вплотную к точке (ближе чем на 1.5 метра), отключаем крюк
+		if global_position.distance_to(grapple_target_point) < 1.5:
+			is_grappling = false
+			dissconect_grapple()
+		# В режиме крюка мы игнорируем стандартную гравитацию, чтобы лететь ровно в цель
+	else:
+		# --- СТАНДАРТНАЯ ЛОГИКА ДВИЖЕНИЯ ---
+		update_gravity(delta)
+		# Сюда стейт-машина будет передавать обычный ход (update_input)
+
+	# Двигаем персонажа с учетом коллизий со стенами
+	update_velocity()
 
 
 func _update_camera():
@@ -201,3 +229,33 @@ func interact_cast() -> void:
 		interaction_cast_result = current_cast_result
 		if interaction_cast_result and interaction_cast_result.has_user_signal("focused"):
 			interaction_cast_result.emit_signal("focused")
+
+
+func grapple() -> void:
+	# Если мы уже летим на крюке, повторное нажатие отключает его (тоггл)
+	if is_grappling:
+		is_grappling = false
+		dissconect_grapple()
+		return
+
+	var camera = CAMERA_CONTROLLER
+	var space_state = camera.get_world_3d().direct_space_state
+	var screen_center = get_viewport().get_visible_rect().size / 2
+	
+	var origin = camera.project_ray_origin(screen_center)
+	var end = origin + camera.project_ray_normal(screen_center) * grapple_distance
+	
+	var query = PhysicsRayQueryParameters3D.create(origin, end)
+	query.collide_with_bodies = true
+	query.exclude = [get_rid()] # Игнорируем себя
+	
+	var result = space_state.intersect_ray(query)
+	
+	if result:
+		# Нашли точку! Запоминаем её и переводим игрока в режим полета
+		grapple_target_point = result.get("position")
+		is_grappling = true
+
+
+func dissconect_grapple(boost : bool = false) -> void:
+	velocity = Vector3.ZERO

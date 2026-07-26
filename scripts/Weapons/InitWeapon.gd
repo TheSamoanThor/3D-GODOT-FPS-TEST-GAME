@@ -42,10 +42,12 @@ var bob_vertical : float = 0.0
 var bullet_hole = preload("res://scripts/Weapons/bullet_hole.tscn")
 var bullet_scene = preload("res://scripts/Weapons/bullet.tscn")
 
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	await owner.ready
 	load_weapon()
+
 
 func _input(event):
 	if event.is_action_pressed("weapon1"):
@@ -57,6 +59,7 @@ func _input(event):
 #	For swaying weapon
 	if event is InputEventMouseMotion:
 		mouse_movement = event.relative
+
 
 func load_weapon() -> void:
 	weapon_mesh.mesh = WEAPON_TYPE.mesh # Set weapon mesh
@@ -73,11 +76,10 @@ func load_weapon() -> void:
 	# Меняем цвет источника света
 	muzzle_light.light_color = WEAPON_TYPE.muzzle_flash_color
 
+
 func sway_weapon(delta, isIdle: bool) -> void:
-	
-	# Clamp mouse movement
+		# Clamp mouse movement
 	mouse_movement = mouse_movement.clamp(WEAPON_TYPE.sway_min,WEAPON_TYPE.sway_max)
-	
 	if isIdle:
 		# Get random sway value from 2D noise
 		var sway_random : float = get_sway_noise()
@@ -102,9 +104,7 @@ func sway_weapon(delta, isIdle: bool) -> void:
 		rotation_degrees.x = lerp(rotation_degrees.x, WEAPON_TYPE.rotation.x - 
 		(mouse_movement.x * WEAPON_TYPE.sway_amount_rotation + 
 		(random_sway_x * idle_sway_rotation_strength)) * delta, WEAPON_TYPE.sway_speed_rotation)
-	
-	
-	
+		
 	else:
 		# Lerp weapon position based on mouse movement
 		position.x = lerp(position.x, WEAPON_TYPE.position.x - 
@@ -116,6 +116,7 @@ func sway_weapon(delta, isIdle: bool) -> void:
 		(mouse_movement.y * WEAPON_TYPE.sway_amount_rotation) * delta, WEAPON_TYPE.sway_speed_rotation)
 		rotation_degrees.x = lerp(rotation_degrees.x, WEAPON_TYPE.rotation.x - 
 		(mouse_movement.x * WEAPON_TYPE.sway_amount_rotation) * delta, WEAPON_TYPE.sway_speed_rotation)
+
 
 func get_sway_noise() -> float:
 	var player_position : Vector3 = Vector3(0,0,0)
@@ -132,67 +133,85 @@ func _weapon_bob(delta, bob_speed: float, horis_bob_amount: float, vertic_bob_am
 	weapon_bob_amount.x = sin(time * bob_speed) * horis_bob_amount
 	weapon_bob_amount.y = abs(cos(time * bob_speed) * vertic_bob_amount)
 
+
 func _attack() -> void:
-	if !WEAPON_TYPE.isMelee and WEAPON_TYPE.isRayWeapon:
-		weapon_fired.emit()
-		var camera = global.player.CAMERA_CONTROLLER
-		var space_state = camera.get_world_3d().direct_space_state
-		
-		# Берем центр видимой игровой области, а не физического окна
-		var screen_center = get_viewport().get_visible_rect().size / 2
-		
-		var origin = camera.project_ray_origin(screen_center)
-		var end = origin + camera.project_ray_normal(screen_center) * WEAPON_TYPE.range
-		
-		var query = PhysicsRayQueryParameters3D.create(origin, end)
-		query.collide_with_bodies = true
-		
-		# Дополнительно исключаем самого игрока из проверки коллизий, 
-		# чтобы луч случайно не врезался в хитбокс персонажа изнутри
-		query.exclude = [global.player.get_rid()] 
-		
-		var result = space_state.intersect_ray(query)
-		if result:
-			_bullet_hole(result.get("position"), result.get("normal"))
-	if !WEAPON_TYPE.isMelee and !WEAPON_TYPE.isRayWeapon:
-		weapon_fired.emit()
-		
-		var camera = global.player.CAMERA_CONTROLLER
-		
-		# 1. РАСЧЕТ РАЗБРОСА ОТ СКОРОСТИ
-		# Получаем текущую скорость игрока
-		var player_speed = global.player.velocity.length()
-		# Итоговый радиус разброса = базовый + (скорость * коэффициент)
-		var current_spread = WEAPON_TYPE.base_spread + (player_speed * WEAPON_TYPE.movement_spread_factor)
-		
-		# Генерируем случайное смещение внутри круга разброса
-		var random_angle = randf() * TAU
-		var random_radius = randf() * current_spread
-		var spread_offset = Vector2(cos(random_angle), sin(random_angle)) * random_radius
-		
-		# 2. НАПРАВЛЕНИЕ ВЫСТРЕЛА С УЧЕТОМ РАЗБРОСА
-		# Берем чистый вектор направления камеры вперед
-		var target_normal = camera.project_ray_normal(get_viewport().get_visible_rect().size / 2)
-		
-		# Создаем базис (систему координат) на основе направления камеры, чтобы отклонить вектор
-		var base_transform = Transform3D(Basis.looking_at(target_normal), Vector3.ZERO)
-		# Смещаем вектор направления по локальным осям X и Y камеры
-		var final_direction = (base_transform.basis * Vector3(spread_offset.x, spread_offset.y, -1.0)).normalized()
-		
-		# 3. СПАВН ТРАССЕРА/ПУЛИ
-		var bullet = bullet_scene.instantiate()
-		get_tree().root.add_child(bullet)
-		
-		# создание дырки при помощи сигнала
-		bullet.hit_registered.connect(_bullet_hole)
-		# Пуля вылетает из дула оружия (muzzle_flash_node), а не из центра экрана
-		bullet.global_position = muzzle_flash_node.global_position
-		
-		# Передаем пуле её урон и вектор скорости (направление * скорость полета)
-		bullet.init_bullet(WEAPON_TYPE.bullet_data, WEAPON_TYPE.damage, final_direction)
-		
-		# Поворачиваем меш пули по направлению полета, чтобы она летела носом вперед
-		bullet.look_at(bullet.global_position + final_direction)
+	if not WEAPON_TYPE.isMelee:
+		if WEAPON_TYPE.isRayWeapon:
+			weapon_fired.emit()
+			var camera = global.player.CAMERA_CONTROLLER
+			var space_state = camera.get_world_3d().direct_space_state
+			
+			# Берем центр видимой игровой области
+			var screen_center = get_viewport().get_visible_rect().size / 2
+			
+			var origin = camera.project_ray_origin(screen_center)
+			var end = origin + camera.project_ray_normal(screen_center) * WEAPON_TYPE.range
+			
+			var query = PhysicsRayQueryParameters3D.create(origin, end)
+			query.collide_with_bodies = true
+			
+			# исключаем самого игрока из проверки коллизий, 
+			# чтобы луч случайно не врезался в хитбокс персонажа изнутри
+			query.exclude = [global.player.get_rid()] 
+			
+			var result = space_state.intersect_ray(query)
+			if result:
+				_bullet_hole(result.get("position"), result.get("normal"))
+		if not WEAPON_TYPE.isRayWeapon:
+			weapon_fired.emit()
+			
+			var camera = global.player.CAMERA_CONTROLLER
+			var space_state = camera.get_world_3d().direct_space_state
+			var screen_center = get_viewport().get_visible_rect().size / 2
+			
+			# 1. НАХОДИМ ТОЧКУ, КУДА СМОТРИТ ПРИЦЕЛ (Убираем параллакс) (рейкаст)
+			var ray_origin = camera.project_ray_origin(screen_center)
+			var ray_end = ray_origin + camera.project_ray_normal(screen_center) * WEAPON_TYPE.range
+			
+			var ray_query = PhysicsRayQueryParameters3D.create(ray_origin, ray_end)
+			ray_query.collide_with_bodies = true
+			ray_query.exclude = [global.player.get_rid()]
+			
+			var ray_result = space_state.intersect_ray(ray_query)
+			
+			var target_point : Vector3
+			if ray_result:
+				# Если прицел наведен на стену или врага — пуля полетит строго в эту точку
+				target_point = ray_result.get("position")
+			else:
+				# Если смотрим в пустоту/небо — пуля летит в далекую точку впереди
+				target_point = ray_end
+			
+			# 2. РАСЧЕТ РАЗБРОСА ОТ СКОРОСТИ
+			var player_speed = global.player.velocity.length()
+			var current_spread = WEAPON_TYPE.base_spread + (player_speed * WEAPON_TYPE.movement_spread_factor)
+			
+			var random_angle = randf() * TAU
+			var random_radius = randf() * current_spread
+			var spread_offset = Vector2(cos(random_angle), sin(random_angle)) * random_radius
+			
+			# 3. ФОРМИРУЕМ НАПРАВЛЕНИЕ ПОЛЕТА ИЗ ДУЛА В ЦЕЛЬ
+			# Вычисляем чистый вектор от дула оружия до точки прицеливания
+			var raw_direction = (target_point - muzzle_flash_node.global_position).normalized()
+			
+			# Создаем базис вокруг этого направления, чтобы правильно применить разброс
+			var base_transform = Transform3D(Basis.looking_at(raw_direction), Vector3.ZERO)
+			# Смещаем траекторию пули по локальным X и Y относительно линии полета
+			var final_direction = (base_transform.basis * Vector3(spread_offset.x, spread_offset.y, -1.0)).normalized()
+			
+			# 4. СПАВН ПУЛИ
+			var bullet = bullet_scene.instantiate()
+			get_tree().root.add_child(bullet)
+			
+			bullet.hit_registered.connect(_bullet_hole)
+			bullet.global_position = muzzle_flash_node.global_position
+			
+			# Инициализируем пулю с новым, скорректированным вектором направления
+			bullet.init_bullet(WEAPON_TYPE.bullet_data, WEAPON_TYPE.damage, final_direction)
+			
+			# Поворачиваем пулю носом по направлению полета
+			bullet.look_at(bullet.global_position + final_direction)
+
 	if WEAPON_TYPE.isMelee:
 		if WEAPON_TYPE.isArealMelee:
 			# Собираем всех врагов, которые оказались внутри зоны в этот момент
@@ -205,7 +224,7 @@ func _attack() -> void:
 				# Спавним искры или кровь в точке соприкосновения
 				# (Для Area3D точную точку можно взять как global_position врага)
 				_bullet_hole(body.global_position, Vector3.UP) # doesnt work :/
-		elif !WEAPON_TYPE.isArealMelee:
+		elif not WEAPON_TYPE.isArealMelee:
 			var camera = global.player.CAMERA_CONTROLLER
 			var space_state = camera.get_world_3d().direct_space_state
 			
@@ -225,6 +244,7 @@ func _attack() -> void:
 			var result = space_state.intersect_ray(query)
 			if result:
 				_bullet_hole(result.get("position"), result.get("normal"))
+
 
 # old func to create bullet holes spawning a bullet hole scene
 #func _bullet_hole(hit_position: Vector3, hit_normal: Vector3) -> void:
@@ -269,6 +289,7 @@ func _attack() -> void:
 	## Ждем окончания анимации (1.5 секунды) и удаляем объект из памяти
 	#await get_tree().create_timer(1.5).timeout
 	#instance.queue_free()
+
 
 func _bullet_hole(hit_position: Vector3, hit_normal: Vector3) -> void: #bullet_hole.tscn can be deleted?
 	# 1. Создаем чистый 3D-меш
