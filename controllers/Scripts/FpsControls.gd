@@ -42,7 +42,6 @@ func _physics_process(delta: float) -> void:
 	global.debug.add_property("RealSpeedVect", get_real_velocity(), 2)
 	global.debug.add_property("Animation", ANIMATIONPLAYER.current_animation, 2)
 	global.debug.add_property("Rotation", rotation, 2)
-	#global.debug.add_property("Z tilt", CAMERA_CONTROLLER.rotation.z, 2)
 	_update_camera()
 
 func _update_camera():
