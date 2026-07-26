@@ -2,6 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://bq8ow52131jdw" path="res://Controllers/fps_controls.tscn" id="1_i7jyh"]
 [ext_resource type="Script" uid="uid://b4nw6yte5dquf" path="res://Scripts/InteractionComponent.gd" id="2_0tnhd"]
+[ext_resource type="Material" uid="uid://d21ut1mguy7yv" path="res://Materials/Highlight.tres" id="2_i4ppk"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_heknc"]
 
@@ -130,12 +131,6 @@ material = SubResource("StandardMaterial3D_q1tvk")
 [sub_resource type="SphereShape3D" id="SphereShape3D_v6gf6"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_refv5"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_refv5"]
-transparency = 1
-albedo_color = Color(1, 1, 1, 0.6)
-emission_enabled = true
-emission = Color(1, 1, 1, 1)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8adi3"]
 albedo_color = Color(1, 0.4392157, 0, 1)
@@ -290,12 +285,12 @@ transform = Transform3D(1.0000006, 0, 0, 0, 1.0000004, 0, 0, 0, 1.0000011, 0, 0.
 [node name="CollisionShape3D" type="CollisionShape3D" parent="LevelObjects/Box" unique_id=1302186528]
 shape = SubResource("BoxShape3D_refv5")
 
-[node name="Branch" type="MeshInstance3D" parent="LevelObjects/Box" unique_id=757299705]
+[node name="box" type="MeshInstance3D" parent="LevelObjects/Box" unique_id=757299705]
 transform = Transform3D(1.0000001, 0, -7.450581e-09, -1.8544246e-09, 1, 1.748049e-10, -1.4901161e-08, -1.4901161e-08, 1, 0, 0, 0)
-material_overlay = SubResource("StandardMaterial3D_refv5")
+material_overlay = ExtResource("2_i4ppk")
 mesh = SubResource("BoxMesh_yppfu")
 
 [node name="InteractionComponent" type="Node" parent="LevelObjects/Box" unique_id=1806599085 node_paths=PackedStringArray("highlight_mesh")]
 script = ExtResource("2_0tnhd")
-highlight_mesh = NodePath("../Branch")
+highlight_mesh = NodePath("../box")
 metadata/_custom_type_script = "uid://b4nw6yte5dquf"
