@@ -1,0 +1,79 @@
+[gd_scene format=3 uid="uid://doeu5cvju7478"]
+
+[ext_resource type="PackedScene" uid="uid://c70iu7rfjv87c" path="res://Levels/pvp_test_map_env.tscn" id="1_h2jy0"]
+[ext_resource type="Script" uid="uid://ds3d4dt6wnhs3" path="res://Levels/pvp_world_script.gd" id="1_hpyfb"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_h2jy0"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+
+[sub_resource type="Sky" id="Sky_hpyfb"]
+sky_material = SubResource("ProceduralSkyMaterial_h2jy0")
+
+[sub_resource type="Environment" id="Environment_2d3ap"]
+background_mode = 2
+sky = SubResource("Sky_hpyfb")
+tonemap_mode = 2
+glow_enabled = true
+
+[node name="World" type="Node" unique_id=2079480875]
+script = ExtResource("1_hpyfb")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1111178016]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1078720297]
+environment = SubResource("Environment_2d3ap")
+
+[node name="PVP_Test_Map" parent="." unique_id=1393295560 instance=ExtResource("1_h2jy0")]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1472488259]
+
+[node name="MainMenu" type="PanelContainer" parent="CanvasLayer" unique_id=810840212]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 353.0
+offset_top = 186.0
+offset_right = -353.0
+offset_bottom = -186.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/MainMenu" unique_id=123920455]
+layout_mode = 2
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 5
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/MainMenu/MarginContainer" unique_id=672612124]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="Label" type="Label" parent="CanvasLayer/MainMenu/MarginContainer/VBoxContainer" unique_id=1525448385]
+layout_mode = 2
+text = "Main Menu"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HostButton" type="Button" parent="CanvasLayer/MainMenu/MarginContainer/VBoxContainer" unique_id=1725205265]
+layout_mode = 2
+text = "Host"
+
+[node name="JoinButton" type="Button" parent="CanvasLayer/MainMenu/MarginContainer/VBoxContainer" unique_id=27389758]
+layout_mode = 2
+text = "Join"
+
+[node name="AddressEntry" type="LineEdit" parent="CanvasLayer/MainMenu/MarginContainer/VBoxContainer" unique_id=701600451]
+layout_mode = 2
+placeholder_text = "Enter addres to join here"
+alignment = 1
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="." unique_id=1786785927]
+_spawnable_scenes = PackedStringArray("uid://bq8ow52131jdw")
+spawn_path = NodePath("..")
+
+[connection signal="pressed" from="CanvasLayer/MainMenu/MarginContainer/VBoxContainer/HostButton" to="." method="_on_host_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/MainMenu/MarginContainer/VBoxContainer/JoinButton" to="." method="_on_join_button_pressed"]
