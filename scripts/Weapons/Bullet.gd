@@ -51,12 +51,14 @@ func _physics_process(delta: float) -> void:
 
 func _on_body_entered(body: Node) -> void:
 	# Игнорируем игрока, если пуля вылетела из него
-	if body == global.player:
-		return
-		
+	#if body == global.player:
+		#return
+	
 	# Нанесение урона
-	#if body.has_method("take_damage"):
-		#body.take_damage(damage)
+	#if body.has_method("recieve_damage"):
+		#print("take damage")
+		#body.recieve_damage(damage)
+		#body.recieve_damage.rpc_id(body.get_multiplayer_authority(), damage)
 	# Спавним след от пули на месте столкновения
 	# Выпускаем короткий луч из текущей позиции назад/вперед, чтобы найти точную поверхность стены
 	var space_state = get_world_3d().direct_space_state

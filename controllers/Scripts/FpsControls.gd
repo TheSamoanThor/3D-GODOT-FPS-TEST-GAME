@@ -16,6 +16,9 @@ class_name Player extends CharacterBody3D
 @export var can_grapple : bool = true
 @export var grapple_speed : float = 15.0
 
+@export var max_health : int = 100
+@export var health : int = 3
+
 
 var is_grappling : bool = false
 var grapple_target_point : Vector3
@@ -32,18 +35,26 @@ var interaction_cast_result
 var current_cast_result
 
 
+func _enter_tree() -> void:
+	set_multiplayer_authority(str(name).to_int())
+
+
 func _input(event: InputEvent) -> void:
+	if not is_multiplayer_authority(): return
+	
 	if event.is_action_pressed("exit"):
 		get_tree().quit()
 	if event.is_action_pressed("interact"):
 		interact()
 	if Input.is_action_just_pressed("attack"):
-		WEAPON_CONTROLLER._attack()
+		WEAPON_CONTROLLER._attack.rpc()
 	if Input.is_action_just_pressed("special_ability") and can_grapple:
 		grapple()
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if not is_multiplayer_authority(): return
+	
 	_mouse_input = event is InputEventMouseMotion and Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED
 	if _mouse_input:
 		_rotation_input -= event.relative.x * MOUSE_SENSITIVITY
@@ -51,6 +62,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if not is_multiplayer_authority(): return
+	
 	global.debug.add_property("RealSpeed", velocity.length(), 1)
 	global.debug.add_property("RealSpeedVect", get_real_velocity(), 2)
 	global.debug.add_property("Animation", ANIMATIONPLAYER.current_animation, 2)
@@ -95,6 +108,8 @@ func _update_camera():
 
 
 func _ready() -> void:
+	if not is_multiplayer_authority(): return
+	
 	global.player = self
 	
 	# Wait one frame to let the Compatibility renderer initialize environment maps safely
@@ -103,6 +118,8 @@ func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	if CROUCH_SHAPECAST != null:
 		CROUCH_SHAPECAST.add_exception(self)
+	
+	CAMERA_CONTROLLER.current = true
 
 
 func update_gravity(delta: float) -> void:
@@ -129,41 +146,9 @@ func update_velocity() -> void:
 	move_and_slide()
 
 
-# old func just for example)))
-#func _process(delta: float) -> void:
-	#if WEAPON_CONTROLLER == null:
-		#return
-	#
-	#_update_camera()
-	#
-	## 1. Определяем, стоит игрок или идет
-	#var is_idle: bool = velocity.length() < 0.2
-	#
-	## 2. Если игрок идет, рассчитываем боббинг (покачивание шагов)
-	#if not is_idle:
-		## Параметры: delta, скорость шагов, качание по X, качание по Y
-		#WEAPON_CONTROLLER._weapon_bob(delta, 10.0, 0.04, 0.02)
-	#
-	## 3. Передаем ввод мыши напрямую в оружие, используя закешированное значение!
-	## Так как оригинальный инпут зануляется физикой, мы берем относительное движение камеры
-	#if _current_rotation != 0.0 or _tilt_input != 0.0:
-		## Восстанавливаем вектор движения мыши для оружия
-		## Делим на SENSITIVITY, чтобы вернуть чистые пиксели движения, которые ждет оружие
-		#WEAPON_CONTROLLER.mouse_movement = Vector2(
-			#-_current_rotation / MOUSE_SENSITIVITY, 
-			#-_tilt_input / MOUSE_SENSITIVITY
-		#)
-	#
-	## 4. Вызываем свей оружия ОДИН раз для всех состояний
-	#WEAPON_CONTROLLER.sway_weapon(delta, is_idle)
-	#
-	#interact_cast()
-	#
-	#_rotation_input = 0.0
-	#_tilt_input = 0.0
-
-
 func _process(delta: float) -> void:
+	if not is_multiplayer_authority(): return
+	
 	if WEAPON_CONTROLLER == null:
 		return
 		
@@ -259,3 +244,11 @@ func grapple() -> void:
 
 func dissconect_grapple(boost : bool = false) -> void:
 	velocity = Vector3.ZERO
+
+
+@rpc("any_peer")
+func recieve_damage(damage_value : int = 0) -> void:
+	health -= damage_value
+	if health <= 0:
+		health = max_health
+		position = Vector3.ZERO

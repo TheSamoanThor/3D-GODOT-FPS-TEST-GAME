@@ -39,7 +39,6 @@ var bob_speed : float = 0.0
 var bob_horizontal : float = 0.0
 var bob_vertical : float = 0.0
 
-var bullet_hole = preload("res://scripts/Weapons/bullet_hole.tscn")
 var bullet_scene = preload("res://scripts/Weapons/bullet.tscn")
 
 
@@ -134,6 +133,7 @@ func _weapon_bob(delta, bob_speed: float, horis_bob_amount: float, vertic_bob_am
 	weapon_bob_amount.y = abs(cos(time * bob_speed) * vertic_bob_amount)
 
 
+@rpc("call_local")
 func _attack() -> void:
 	if not WEAPON_TYPE.isMelee:
 		if WEAPON_TYPE.isRayWeapon:
@@ -152,10 +152,12 @@ func _attack() -> void:
 			
 			# исключаем самого игрока из проверки коллизий, 
 			# чтобы луч случайно не врезался в хитбокс персонажа изнутри
-			query.exclude = [global.player.get_rid()] 
+			#query.exclude = [global.player.get_rid()] 
 			
 			var result = space_state.intersect_ray(query)
 			if result:
+				if result.get("collider").has_method("recieve_damage"):
+					result.get("collider").recieve_damage.rpc_id(result.get("collider").get_multiplayer_authority(), WEAPON_TYPE.damage)
 				_bullet_hole(result.get("position"), result.get("normal"))
 		if not WEAPON_TYPE.isRayWeapon:
 			weapon_fired.emit()
@@ -219,8 +221,10 @@ func _attack() -> void:
 			
 			for body in targets:
 				# Игнорируем самого себя
-				if body == global.player or body.get_rid() == global.player.get_rid():
-					continue
+				#if body == global.player or body.get_rid() == global.player.get_rid():
+					#continue
+				if body.has_method("recieve_damage"):
+					body.recieve_damage.rpc_id(body.get_multiplayer_authority(), WEAPON_TYPE.damage)
 				# Спавним искры или кровь в точке соприкосновения
 				# (Для Area3D точную точку можно взять как global_position врага)
 				_bullet_hole(body.global_position, Vector3.UP) # doesnt work :/
@@ -239,59 +243,16 @@ func _attack() -> void:
 			
 			# Дополнительно исключаем самого игрока из проверки коллизий, 
 			# чтобы луч случайно не врезался в хитбокс персонажа изнутри
-			query.exclude = [global.player.get_rid()] 
+			#query.exclude = [global.player.get_rid()] 
 			
 			var result = space_state.intersect_ray(query)
 			if result:
+				if result.get("collider").has_method("recieve_damage"):
+					result.get("collider").recieve_damage.rpc_id(result.get("collider").get_multiplayer_authority(), WEAPON_TYPE.damage)
 				_bullet_hole(result.get("position"), result.get("normal"))
 
 
-# old func to create bullet holes spawning a bullet hole scene
-#func _bullet_hole(hit_position: Vector3, hit_normal: Vector3) -> void:
-	#var instance = bullet_hole.instantiate()
-	#get_tree().root.add_child(instance)
-	#
-	## 1. Сдвигаем пулю на половину сантиметра ОТ стены по вектору нормали.
-	## Это убирает мерцание без необходимости включать просвечивающий No Depth Test
-	#instance.global_position = hit_position + (hit_normal * 0.005)
-	#
-	## ЛУЧШЕ ВРАЩАТЬ "ДЕКАЛЬ", ИНАЧЕ ПРОИЗВОДИТЕЛЬНОСТЬ СИЛЬНО СТРАДАЕТ
-	## но разраб не все знает, потому пока что так
-	## 2. Математически заставляем материал пули рендериться с двух сторон (Двусторонний режим)
-	## Ищем MeshInstance3D внутри созданной пули
-	#var mesh_node = instance.get_node_or_null("MeshInstance3D") as MeshInstance3D
-	#
-	#var mat = mesh_node.get_active_material(0) as StandardMaterial3D
-	#if mat:
-		## CULL_DISABLED = 2 (Отключает отсечение задних граней, делая меш двусторонним)
-		#mat.cull_mode = StandardMaterial3D.CULL_DISABLED 
-	#
-	## 3. Вычисляем точное вращение: ось Z плоскости теперь строго смотрит на нормаль стены
-	#var up_direction = Vector3.UP if abs(hit_normal.dot(Vector3.UP)) < 0.99 else Vector3.FORWARD
-	#instance.global_transform = Transform3D(
-		#Basis.looking_at(hit_normal, up_direction), 
-		#instance.global_position
-	#)
-	#
-	## Ждем 2 секунды перед началом растворения
-	#await get_tree().create_timer(2.0).timeout
-	#
-	## Создаем уникальную копию материала для этой конкретной пули
-	#var original_mat = mesh_node.get_active_material(0)
-	#if original_mat:
-		#var unique_mat = original_mat.duplicate() as StandardMaterial3D
-		#mesh_node.material_override = unique_mat # Применяем уникальный материал
-		#
-		## Запускаем плавное растворение альфа-канала материала (с 1.0 до 0.0 за 1.5 секунды)
-		#var tween = get_tree().create_tween()
-		#tween.tween_property(unique_mat, "albedo_color:a", 0.0, 1.5)
-	#
-	## Ждем окончания анимации (1.5 секунды) и удаляем объект из памяти
-	#await get_tree().create_timer(1.5).timeout
-	#instance.queue_free()
-
-
-func _bullet_hole(hit_position: Vector3, hit_normal: Vector3) -> void: #bullet_hole.tscn can be deleted?
+func _bullet_hole(hit_position: Vector3, hit_normal: Vector3) -> void:
 	# 1. Создаем чистый 3D-меш
 	var instance = MeshInstance3D.new()
 	
@@ -306,7 +267,6 @@ func _bullet_hole(hit_position: Vector3, hit_normal: Vector3) -> void: #bullet_h
 	mat.cull_mode = StandardMaterial3D.CULL_DISABLED # Двусторонний режим
 	mat.transparency = StandardMaterial3D.TRANSPARENCY_ALPHA # Включаем прозрачность для будущего затухания
 	
-	# Если у вас есть текстура дырки, можно раскомментировать эту строчку:
 	mat.albedo_texture = preload("res://Textures/bullet_hole.png")
 	
 	instance.material_override = mat

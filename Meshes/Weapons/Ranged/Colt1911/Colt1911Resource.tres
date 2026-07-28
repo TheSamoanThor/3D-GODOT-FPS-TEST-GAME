@@ -26,7 +26,7 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 
-[sub_resource type="ArrayMesh" id="ArrayMesh_cbjag"]
+[sub_resource type="ArrayMesh" id="ArrayMesh_qqojx"]
 resource_name = "Sketchfab_Scene_Object_0"
 _surfaces = [{
 "aabb": AABB(-0.016767964, -0.1725893, -0.1724166, 0.033535928, 0.23323758, 0.3701852),
@@ -48,10 +48,10 @@ shadow_mesh = SubResource("ArrayMesh_ots4b")
 [resource]
 script = ExtResource("3_rykig")
 name = &"Colt1911"
-position = Vector3(0.065, -0.03, -0.12)
+position = Vector3(0.3, -0.03, -0.34)
 rotation = Vector3(0, 180, 0)
-scale = Vector3(1, 1, 1)
-mesh = SubResource("ArrayMesh_cbjag")
+scale = Vector3(3, 3, 3)
+mesh = SubResource("ArrayMesh_qqojx")
 sway_min = Vector2(-5, -5)
 sway_max = Vector2(5, 5)
 damage = 25.0

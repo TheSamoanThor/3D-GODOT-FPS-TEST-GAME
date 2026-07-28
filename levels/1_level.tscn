@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cohh7c24knxjt"]
 
-[ext_resource type="PackedScene" uid="uid://bq8ow52131jdw" path="res://Controllers/fps_controls.tscn" id="1_i7jyh"]
+[ext_resource type="PackedScene" uid="uid://bq8ow52131jdw" path="res://Controllers/PlayerScene.tscn" id="1_i7jyh"]
 [ext_resource type="Script" uid="uid://b4nw6yte5dquf" path="res://Scripts/InteractionComponent.gd" id="2_0tnhd"]
 [ext_resource type="Material" uid="uid://d21ut1mguy7yv" path="res://Materials/Highlight.tres" id="2_i4ppk"]
 

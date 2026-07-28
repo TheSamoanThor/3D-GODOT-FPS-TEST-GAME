@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="3D-fps"
-run/main_scene="uid://cohh7c24knxjt"
+run/main_scene="uid://doeu5cvju7478"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
 
