@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://doeu5cvju7478"]
 
-[ext_resource type="PackedScene" uid="uid://c70iu7rfjv87c" path="res://levels/pvp_test_map_env.tscn" id="1_h2jy0"]
-[ext_resource type="Script" uid="uid://ds3d4dt6wnhs3" path="res://levels/pvp_world_script.gd" id="1_hpyfb"]
+[ext_resource type="PackedScene" uid="uid://c70iu7rfjv87c" path="res://Levels/pvp_test_map_env.tscn" id="1_h2jy0"]
+[ext_resource type="Script" uid="uid://ds3d4dt6wnhs3" path="res://Levels/pvp_world_script.gd" id="1_hpyfb"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_h2jy0"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)

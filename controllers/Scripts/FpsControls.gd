@@ -44,7 +44,6 @@ func _enter_tree() -> void:
 		set_multiplayer_authority(1)
 
 
-
 func _input(event: InputEvent) -> void:
 	if not is_multiplayer_authority(): return
 	
