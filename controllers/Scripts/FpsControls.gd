@@ -36,7 +36,13 @@ var current_cast_result
 
 
 func _enter_tree() -> void:
-	set_multiplayer_authority(str(name).to_int())
+	# Проверяем, запущен ли мультиплеерный пир
+	if multiplayer.multiplayer_peer and not multiplayer.multiplayer_peer is OfflineMultiplayerPeer:
+		set_multiplayer_authority(str(name).to_int())
+	else:
+		# Если играем в сингл-плеер, принудительно ставим стандартный ID сервера (1)
+		set_multiplayer_authority(1)
+
 
 
 func _input(event: InputEvent) -> void:
