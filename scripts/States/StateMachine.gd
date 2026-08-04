@@ -20,10 +20,15 @@ func _ready() -> void:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
+	if not is_multiplayer_authority():
+		return # Выходим, если это чужой игрок на нашем экране
+	
 	CURR_STATE.update(delta)
 	global.debug.add_property("Curr State", CURR_STATE.name, 1)
 
 func _physics_process(delta: float) -> void:
+	if not is_multiplayer_authority():
+		return
 	CURR_STATE.physics_update(delta)
 
 func on_child_transition(new_state_name: StringName) -> void:

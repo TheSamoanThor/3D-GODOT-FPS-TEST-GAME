@@ -51,9 +51,9 @@ func _input(event: InputEvent) -> void:
 		get_tree().quit()
 	if event.is_action_pressed("interact"):
 		interact()
-	if Input.is_action_just_pressed("attack"):
+	if event.is_action_pressed("attack"):
 		WEAPON_CONTROLLER._attack.rpc()
-	if Input.is_action_just_pressed("special_ability") and can_grapple:
+	if event.is_action_pressed("special_ability") and can_grapple:
 		grapple()
 
 
@@ -113,7 +113,14 @@ func _update_camera():
 
 
 func _ready() -> void:
-	if not is_multiplayer_authority(): return
+	if not is_multiplayer_authority():
+		# Отключаем камеру оружия и весь WeaponRig для чужих игроков
+		# Укажи точный путь до твоего узла WeaponRig или WeaponViewport
+		%SubViewportContainer.hide() 
+		# Если WeaponRig лежит в камере, выключаем его процесс:
+		%WeaponRig.set_process(false)
+		%WeaponRig.set_physics_process(false)
+		return
 	
 	global.player = self
 	
@@ -148,6 +155,7 @@ func update_input(speed: float, acceleration: float, deceleration: float) -> voi
 
 
 func update_velocity() -> void:
+	if not is_multiplayer_authority(): return
 	move_and_slide()
 
 
@@ -253,6 +261,8 @@ func dissconect_grapple(boost : bool = false) -> void:
 
 @rpc("any_peer")
 func recieve_damage(damage_value : int = 0) -> void:
+	if not is_multiplayer_authority():
+		return
 	health -= damage_value
 	if health <= 0:
 		health = max_health

@@ -24,6 +24,13 @@ signal weapon_fired
 @onready var muzzle_light : OmniLight3D = %OmniLight3D
 @onready var melee_area : Area3D = %MeleeArea
 # MUST BE OFF IN THE SCENE TO AVOID UNNECESSARY LIGHT IN THE START OF LEVEL
+@export var current_weapon_path: String = "res://Meshes/Weapons/Ranged/Colt1911/Colt1911Resource.tres":
+	set(value):
+		current_weapon_path = value
+		# Выполняем загрузку ТОЛЬКО если узел полностью готов и добавлен в сцену
+		if current_weapon_path != "" and is_node_ready():
+			WEAPON_TYPE = load(current_weapon_path)
+			load_weapon()
 
 
 var mouse_movement : Vector2
@@ -45,22 +52,33 @@ var bullet_scene = preload("res://scripts/Weapons/bullet.tscn")
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	await owner.ready
-	load_weapon()
+	# Если MultiplayerSynchronizer уже передал путь к оружию к моменту готовности
+	if current_weapon_path != "":
+		WEAPON_TYPE = load(current_weapon_path)
+		load_weapon()
+
+
+func _process(delta: float) -> void:
+	if not is_multiplayer_authority(): return
 
 
 func _input(event):
+	if not is_multiplayer_authority(): return # Смена только для себя!
+	
+	#if event.is_action_pressed("attack"):
+		#_attack.rpc()
 	if event.is_action_pressed("weapon1"):
-		WEAPON_TYPE = load("res://Meshes/Weapons/Ranged/Colt1911/Colt1911Resource.tres")
-		load_weapon()
+		current_weapon_path = "res://Meshes/Weapons/Ranged/Colt1911/Colt1911Resource.tres"
 	if event.is_action_pressed("weapon2"):
-		WEAPON_TYPE = load("res://Meshes/Weapons/Melee/Crowbar/CrowbarResource.tres")
-		load_weapon()
+		current_weapon_path = "res://Meshes/Weapons/Melee/Crowbar/CrowbarResource.tres"
 #	For swaying weapon
 	if event is InputEventMouseMotion:
 		mouse_movement = event.relative
 
 
 func load_weapon() -> void:
+	if not has_node("%WeaponMesh") or %WeaponMesh == null:
+		return
 	weapon_mesh.mesh = WEAPON_TYPE.mesh # Set weapon mesh
 	weapon_shadow.mesh = WEAPON_TYPE.mesh
 	position = WEAPON_TYPE.position # Set wespon position
@@ -118,7 +136,12 @@ func sway_weapon(delta, isIdle: bool) -> void:
 
 
 func get_sway_noise() -> float:
-	var player_position : Vector3 = Vector3(0,0,0)
+	# Если синглтон global еще не сохранил игрока, возвращаем 0.0, чтобы избежать вылета
+	if not global or not global.player:
+		return 0.0
+	
+	var player_position = global.player.global_position
+	#var player_position : Vector3 = Vector3(0,0,0)
 	# Only access global variable when in-game to avoid constant errors
 	if not Engine.is_editor_hint():
 		player_position = global.player.global_position
@@ -135,6 +158,8 @@ func _weapon_bob(delta, bob_speed: float, horis_bob_amount: float, vertic_bob_am
 
 @rpc("call_local")
 func _attack() -> void:
+	if not is_multiplayer_authority():
+		return
 	if not WEAPON_TYPE.isMelee:
 		if WEAPON_TYPE.isRayWeapon:
 			weapon_fired.emit()
@@ -158,7 +183,7 @@ func _attack() -> void:
 			if result:
 				if result.get("collider").has_method("recieve_damage"):
 					result.get("collider").recieve_damage.rpc_id(result.get("collider").get_multiplayer_authority(), WEAPON_TYPE.damage)
-				_bullet_hole(result.get("position"), result.get("normal"))
+				_bullet_hole.rpc(result.get("position"), result.get("normal"))
 		if not WEAPON_TYPE.isRayWeapon:
 			weapon_fired.emit()
 			
@@ -205,7 +230,8 @@ func _attack() -> void:
 			var bullet = bullet_scene.instantiate()
 			get_tree().root.add_child(bullet)
 			
-			bullet.hit_registered.connect(_bullet_hole)
+			# страшные конструкции для передачи всем игрокам пуль
+			bullet.hit_registered.connect(func(pos, norm): _bullet_hole.rpc(pos, norm))
 			bullet.global_position = muzzle_flash_node.global_position
 			
 			# Инициализируем пулю с новым, скорректированным вектором направления
@@ -227,7 +253,7 @@ func _attack() -> void:
 					body.recieve_damage.rpc_id(body.get_multiplayer_authority(), WEAPON_TYPE.damage)
 				# Спавним искры или кровь в точке соприкосновения
 				# (Для Area3D точную точку можно взять как global_position врага)
-				_bullet_hole(body.global_position, Vector3.UP) # doesnt work :/
+				_bullet_hole.rpc(body.global_position, Vector3.UP) # doesnt work :/
 		elif not WEAPON_TYPE.isArealMelee:
 			var camera = global.player.CAMERA_CONTROLLER
 			var space_state = camera.get_world_3d().direct_space_state
@@ -249,9 +275,10 @@ func _attack() -> void:
 			if result:
 				if result.get("collider").has_method("recieve_damage"):
 					result.get("collider").recieve_damage.rpc_id(result.get("collider").get_multiplayer_authority(), WEAPON_TYPE.damage)
-				_bullet_hole(result.get("position"), result.get("normal"))
+				_bullet_hole.rpc(result.get("position"), result.get("normal"))
 
 
+@rpc("any_peer", "call_local", "unreliable")
 func _bullet_hole(hit_position: Vector3, hit_normal: Vector3) -> void:
 	# 1. Создаем чистый 3D-меш
 	var instance = MeshInstance3D.new()

@@ -477,6 +477,9 @@ properties/1/replication_mode = 1
 properties/2/path = NodePath("CameraController:rotation")
 properties/2/spawn = true
 properties/2/replication_mode = 1
+properties/3/path = NodePath("CameraController/Recoil/SubViewportContainer/SubViewport/WeaponCameraController/WeaponCamera/WeaponRig/Weapon:current_weapon_path")
+properties/3/spawn = true
+properties/3/replication_mode = 1
 
 [node name="CharacterBody3D" type="CharacterBody3D" unique_id=179219016 node_paths=PackedStringArray("CAMERA_CONTROLLER", "ANIMATIONPLAYER", "CROUCH_SHAPECAST", "WEAPON_CONTROLLER")]
 collision_layer = 2
@@ -512,6 +515,7 @@ environment = SubResource("Environment_yarfj")
 visible = false
 
 [node name="SubViewportContainer" type="SubViewportContainer" parent="CameraController/Recoil" unique_id=1753537368]
+unique_name_in_owner = true
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -530,7 +534,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 script = ExtResource("4_r71yq")
 
 [node name="WeaponCamera" type="Camera3D" parent="CameraController/Recoil/SubViewportContainer/SubViewport/WeaponCameraController" unique_id=691481083 node_paths=PackedStringArray("MAIN_CAMERA")]
-cull_mask = 1048574
+cull_mask = 1047554
 script = ExtResource("5_1ep30")
 MAIN_CAMERA = NodePath("../../../../Camera3D")
 
@@ -540,6 +544,7 @@ transform = Transform3D(1.4999999, 0, 0, 0, 1.4999999, 0, 0, 0, 1.5, 0, 0, 0)
 
 [node name="Weapon" parent="CameraController/Recoil/SubViewportContainer/SubViewport/WeaponCameraController/WeaponCamera/WeaponRig" unique_id=1240987764 instance=ExtResource("6_40e3h")]
 transform = Transform3D(-3, 0, -2.6226832e-07, 0, 3, 0, 2.6226832e-07, 0, -3, 0.3, -0.03, -0.34)
+current_weapon_path = null
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1360881977]
 libraries/ = SubResource("AnimationLibrary_f1558")

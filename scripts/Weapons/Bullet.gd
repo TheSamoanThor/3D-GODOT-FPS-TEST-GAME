@@ -40,12 +40,34 @@ func _ready() -> void:
 	# Удаляем пулю через 4 секунды, если она никуда не попала
 	get_tree().create_timer(4.0).timeout.connect(queue_free)
 
+
 func _physics_process(delta: float) -> void:
 	if not data: return
 	
-	# Двигаем пулю
-	global_position += velocity * delta
-	# Применяем гравитацию с учетом модификатора из ресурса (например, стрела падает быстрее лазера)
+	var movement = velocity * delta
+	var space_state = get_world_3d().direct_space_state
+	
+	# Пускаем луч на расстояние, которое пуля пролетит в этом кадре
+	var query = PhysicsRayQueryParameters3D.create(global_position, global_position + movement)
+	query.collide_with_bodies = true
+	query.exclude = [get_rid(), global.player.get_rid()]
+	
+	var result = space_state.intersect_ray(query)
+	
+	if result:
+		# Нашли точную стену ДО того, как физически пролетели её
+		hit_registered.emit(result.get("position"), result.get("normal"))
+		
+		# Если это игрок, наносим урон через RPC на сервере
+		var collider = result.get("collider")
+		if collider.has_method("recieve_damage"):
+			collider.recieve_damage.rpc_id(collider.get_multiplayer_authority(), damage)
+			
+		queue_free()
+		return
+
+	# Если препятствий нет — двигаем пулю дальше
+	global_position += movement
 	velocity.y -= (9.8 * data.gravity_modifier) * delta
 
 

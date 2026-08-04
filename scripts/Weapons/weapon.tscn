@@ -36,7 +36,7 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 
-[sub_resource type="ArrayMesh" id="ArrayMesh_cbjag"]
+[sub_resource type="ArrayMesh" id="ArrayMesh_qqojx"]
 resource_name = "Sketchfab_Scene_Object_0"
 _surfaces = [{
 "aabb": AABB(-0.016767964, -0.1725893, -0.1724166, 0.033535928, 0.23323758, 0.3701852),
@@ -93,7 +93,7 @@ height = 0.5
 radius = 0.15
 
 [node name="Weapon" type="Node3D" unique_id=1240987764]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0.065, -0.03, -0.12)
+transform = Transform3D(-3, 0, -2.6226832e-07, 0, 3, 0, 2.6226832e-07, 0, -3, 0.3, -0.03, -0.34)
 script = ExtResource("1_mjb0j")
 WEAPON_TYPE = ExtResource("2_7y78o")
 sway_noise = SubResource("NoiseTexture2D_7y78o")
@@ -110,14 +110,14 @@ unique_name_in_owner = true
 transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 0, 0)
 layers = 2
 cast_shadow = 0
-mesh = SubResource("ArrayMesh_cbjag")
+mesh = SubResource("ArrayMesh_qqojx")
 
 [node name="WeaponShadow" type="MeshInstance3D" parent="RecoilPosition" unique_id=1492836580]
 unique_name_in_owner = true
 transform = Transform3D(0.0625, 0, 0, 0, 0.0625, 0, 0, 0, 0.0625, 0, 0, 0)
 visible = false
 cast_shadow = 3
-mesh = SubResource("ArrayMesh_cbjag")
+mesh = SubResource("ArrayMesh_qqojx")
 
 [node name="MuzzleFlash" type="Node3D" parent="." unique_id=1367262273 node_paths=PackedStringArray("weapon", "light", "emitter")]
 unique_name_in_owner = true

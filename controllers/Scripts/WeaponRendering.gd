@@ -8,8 +8,12 @@ func _ready() -> void:
 
 # Match Weapon Camera to Player Camera
 func _process(delta: float) -> void:
-	global_transform = MAIN_CAMERA.global_transform
-	
-	# СИНХРОНИЗАЦИЯ ОРУЖИЯ: Принудительно передаем глобальные координаты 
-	# головы игрока на узел с монтировкой, вытаскивая его из изоляции вьюпорта
-	%WeaponRig.global_transform = MAIN_CAMERA.global_transform
+	if not is_multiplayer_authority():
+		return # Если это не наш игрок, его пушка не должна следовать за нашей камерой!
+		
+	if MAIN_CAMERA:
+		global_transform = MAIN_CAMERA.global_transform
+		# СИНХРОНИЗАЦИЯ ОРУЖИЯ: Принудительно передаем глобальные координаты 
+		# головы игрока на узел с монтировкой, вытаскивая его из изоляции вьюпорта
+		if %WeaponRig:
+			%WeaponRig.global_transform = MAIN_CAMERA.global_transform
