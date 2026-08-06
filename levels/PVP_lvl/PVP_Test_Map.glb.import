@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://dy8iaqk37oija"
-path="res://.godot/imported/PVP_Test_Map.glb-3a33d44d889764c95bc29bf9847261d9.scn"
+path="res://.godot/imported/PVP_Test_Map.glb-c6b4c9f0aca45f344d6ddd82d1cb27f5.scn"
 
 [deps]
 
-source_file="res://Levels/PVP_Test_Map.glb"
-dest_files=["res://.godot/imported/PVP_Test_Map.glb-3a33d44d889764c95bc29bf9847261d9.scn"]
+source_file="res://Levels/PVP_lvl/PVP_Test_Map.glb"
+dest_files=["res://.godot/imported/PVP_Test_Map.glb-c6b4c9f0aca45f344d6ddd82d1cb27f5.scn"]
 
 [params]
 

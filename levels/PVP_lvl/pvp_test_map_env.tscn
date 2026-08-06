@@ -1,6 +1,6 @@
 [gd_scene format=4 uid="uid://c70iu7rfjv87c"]
 
-[ext_resource type="PackedScene" uid="uid://dy8iaqk37oija" path="res://Levels/PVP_Test_Map.glb" id="1_btg0o"]
+[ext_resource type="PackedScene" uid="uid://dy8iaqk37oija" path="res://Levels/PVP_lvl/PVP_Test_Map.glb" id="1_btg0o"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_semcp"]
 resource_name = "Материал"

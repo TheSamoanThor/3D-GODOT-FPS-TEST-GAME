@@ -23,6 +23,9 @@ func _process(delta: float) -> void:
 	if not is_multiplayer_authority():
 		return # Выходим, если это чужой игрок на нашем экране
 	
+	if is_queued_for_deletion() or not is_inside_tree():
+		return
+	
 	CURR_STATE.update(delta)
 	global.debug.add_property("Curr State", CURR_STATE.name, 1)
 

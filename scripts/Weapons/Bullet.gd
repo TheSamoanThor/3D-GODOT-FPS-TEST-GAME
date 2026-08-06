@@ -36,7 +36,7 @@ func init_bullet(bullet_settings: BulletData, weapon_damage: float, direction: V
 
 func _ready() -> void:
 	# Подключаем проверку столкновений
-	body_entered.connect(_on_body_entered)
+	#body_entered.connect(_on_body_entered)
 	# Удаляем пулю через 4 секунды, если она никуда не попала
 	get_tree().create_timer(4.0).timeout.connect(queue_free)
 
@@ -71,38 +71,38 @@ func _physics_process(delta: float) -> void:
 	velocity.y -= (9.8 * data.gravity_modifier) * delta
 
 
-func _on_body_entered(body: Node) -> void:
-	# Игнорируем игрока, если пуля вылетела из него
-	#if body == global.player:
-		#return
-	
-	# Нанесение урона
-	#if body.has_method("recieve_damage"):
-		#print("take damage")
-		#body.recieve_damage(damage)
-		#body.recieve_damage.rpc_id(body.get_multiplayer_authority(), damage)
-	# Спавним след от пули на месте столкновения
-	# Выпускаем короткий луч из текущей позиции назад/вперед, чтобы найти точную поверхность стены
-	var space_state = get_world_3d().direct_space_state
-	# Берем точку чуть позади пули и чуть впереди пули по вектору её скорости
-	var dir = velocity.normalized()
-	var origin = global_position - (dir * 2.0)
-	var end = global_position + (dir * 2.0)
-	
-	var query = PhysicsRayQueryParameters3D.create(origin, end)
-	query.collide_with_bodies = true
-	# Игнорируем пулю и игрока
-	query.exclude = [get_rid(), global.player.get_rid()]
-	
-	var result = space_state.intersect_ray(query)
-	
-	if result:
-		# Передаем абсолютно точные координаты поверхности и честную нормаль стены из рейкаста!
-		hit_registered.emit(result.get("position"), result.get("normal"))
-	else:
-		# Если луч почему-то не попал (редкий баг), передаем дефолтные значения
-		hit_registered.emit(global_position, -dir)
-	
-	# Переносим удаление пули на конец кадра через call_deferred.
-	# Это дает 100% гарантию, что сигнал успеет обработаться скриптом оружия
-	call_deferred("queue_free")
+#func _on_body_entered(body: Node) -> void:
+	## Игнорируем игрока, если пуля вылетела из него
+	##if body == global.player:
+		##return
+	#
+	## Нанесение урона
+	##if body.has_method("recieve_damage"):
+		##print("take damage")
+		##body.recieve_damage(damage)
+		##body.recieve_damage.rpc_id(body.get_multiplayer_authority(), damage)
+	## Спавним след от пули на месте столкновения
+	## Выпускаем короткий луч из текущей позиции назад/вперед, чтобы найти точную поверхность стены
+	#var space_state = get_world_3d().direct_space_state
+	## Берем точку чуть позади пули и чуть впереди пули по вектору её скорости
+	#var dir = velocity.normalized()
+	#var origin = global_position - (dir * 2.0)
+	#var end = global_position + (dir * 2.0)
+	#
+	#var query = PhysicsRayQueryParameters3D.create(origin, end)
+	#query.collide_with_bodies = true
+	## Игнорируем пулю и игрока
+	#query.exclude = [get_rid(), global.player.get_rid()]
+	#
+	#var result = space_state.intersect_ray(query)
+	#
+	#if result:
+		## Передаем абсолютно точные координаты поверхности и честную нормаль стены из рейкаста!
+		#hit_registered.emit(result.get("position"), result.get("normal"))
+	#else:
+		## Если луч почему-то не попал (редкий баг), передаем дефолтные значения
+		#hit_registered.emit(global_position, -dir)
+	#
+	## Переносим удаление пули на конец кадра через call_deferred.
+	## Это дает 100% гарантию, что сигнал успеет обработаться скриптом оружия
+	#call_deferred("queue_free")

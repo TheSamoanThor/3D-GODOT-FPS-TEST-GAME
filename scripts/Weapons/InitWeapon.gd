@@ -231,6 +231,7 @@ func _attack() -> void:
 			get_tree().root.add_child(bullet)
 			
 			# страшные конструкции для передачи всем игрокам пуль
+			# бесплатно без смс и регистрации (не бесплатно)
 			bullet.hit_registered.connect(func(pos, norm): _bullet_hole.rpc(pos, norm))
 			bullet.global_position = muzzle_flash_node.global_position
 			

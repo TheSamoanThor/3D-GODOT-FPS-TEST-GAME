@@ -38,7 +38,9 @@ var current_cast_result
 func _enter_tree() -> void:
 	# Проверяем, запущен ли мультиплеерный пир
 	if multiplayer.multiplayer_peer and not multiplayer.multiplayer_peer is OfflineMultiplayerPeer:
-		set_multiplayer_authority(str(name).to_int())
+		var peer_id = str(name).to_int()
+		if peer_id > 0:
+			set_multiplayer_authority(peer_id)
 	else:
 		# Если играем в сингл-плеер, принудительно ставим стандартный ID сервера (1)
 		set_multiplayer_authority(1)
@@ -69,10 +71,11 @@ func _unhandled_input(event: InputEvent) -> void:
 func _physics_process(delta: float) -> void:
 	if not is_multiplayer_authority(): return
 	
-	global.debug.add_property("RealSpeed", velocity.length(), 1)
-	global.debug.add_property("RealSpeedVect", get_real_velocity(), 2)
-	global.debug.add_property("Animation", ANIMATIONPLAYER.current_animation, 2)
-	global.debug.add_property("Rotation", rotation, 2)
+	if global.debug and is_instance_valid(global.debug):
+		global.debug.add_property("RealSpeed", velocity.length(), 1)
+		global.debug.add_property("RealSpeedVect", get_real_velocity(), 2)
+		global.debug.add_property("Animation", ANIMATIONPLAYER.current_animation, 2)
+		global.debug.add_property("Rotation", rotation, 2)
 	
 	if is_grappling:
 		# Вычисляем направление от игрока к точке зацепа
@@ -265,5 +268,48 @@ func recieve_damage(damage_value : int = 0) -> void:
 		return
 	health -= damage_value
 	if health <= 0:
-		health = max_health
-		position = Vector3.ZERO
+		_die()
+
+
+# Запрос на респавн отправляется на сервер
+@rpc("any_peer", "call_local", "reliable")
+func request_respawn() -> void:
+	# Безопасность: только сервер имеет право перемещать игроков и менять им здоровье
+	if not multiplayer.is_server():
+		return
+	print("respawn")
+	# 1. Сбрасываем здоровье до максимума
+	health = max_health 
+	
+	# 2. Находим новую случайную точку через метод менеджера (или прямо здесь)
+	var spawn_pos = Vector3(0, 2.5, 0)
+	var points = get_tree().get_nodes_in_group("spawn_points")
+	if points.size() > 0:
+		spawn_pos = points.pick_random().global_position
+	
+	# 3. Уведомляем клиентов, что игрок снова живой (например, включаем видимость)
+	_reset_player_state.rpc(spawn_pos)
+
+
+# Выполняется на клиенте, который владеет этим персонажем
+@rpc("any_peer", "call_local", "reliable")
+func _reset_player_state(spawn_position: Vector3) -> void:
+	print("reset")
+	# Сбрасываем скорость, чтобы не "лететь" по инерции после возрождения
+	velocity = Vector3.ZERO
+	# Устанавливаем позицию (теперь клиент делает это сам, и синхронизатор не будет спорить)
+	global_position = spawn_position
+	
+	# Включаем обратно обработку физики и видимость
+	process_mode = PROCESS_MODE_INHERIT
+	show()
+
+
+func _die() -> void:
+	# Выключаем обработку физики и ввода на время смерти
+	process_mode = PROCESS_MODE_DISABLED 
+	hide() # Прячем игрока
+	
+	# Если это наш локальный игрок, просим сервер нас возродить
+	if is_multiplayer_authority():
+		request_respawn.rpc()
