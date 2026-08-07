@@ -15,19 +15,24 @@ func _ready() -> void:
 			push_warning("State machine contains incompatible child node")
 	
 	await owner.ready
-	CURR_STATE.enter(null)
+	await get_tree().physics_frame
+	
+	if CURR_STATE:
+		CURR_STATE.enter(null)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
+	if is_queued_for_deletion() or not is_inside_tree() or not is_instance_valid(self):
+		return
+	
 	if not is_multiplayer_authority():
 		return # Выходим, если это чужой игрок на нашем экране
 	
-	if is_queued_for_deletion() or not is_inside_tree():
-		return
-	
-	CURR_STATE.update(delta)
-	global.debug.add_property("Curr State", CURR_STATE.name, 1)
+	if CURR_STATE and is_instance_valid(CURR_STATE):
+		CURR_STATE.update(delta)
+		if global.debug and is_instance_valid(global.debug) and global.debug.visible:
+			global.debug.add_property("Curr State", CURR_STATE.name, 1)
 
 func _physics_process(delta: float) -> void:
 	if not is_multiplayer_authority():

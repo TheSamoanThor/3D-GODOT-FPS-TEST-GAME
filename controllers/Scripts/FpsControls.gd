@@ -40,10 +40,12 @@ func _enter_tree() -> void:
 	if multiplayer.multiplayer_peer and not multiplayer.multiplayer_peer is OfflineMultiplayerPeer:
 		var peer_id = str(name).to_int()
 		if peer_id > 0:
-			set_multiplayer_authority(peer_id)
+			if get_multiplayer_authority() != peer_id:
+				set_multiplayer_authority(peer_id)
 	else:
 		# Если играем в сингл-плеер, принудительно ставим стандартный ID сервера (1)
-		set_multiplayer_authority(1)
+		if get_multiplayer_authority() != 1:
+			set_multiplayer_authority(1)
 
 
 func _input(event: InputEvent) -> void:
@@ -277,7 +279,6 @@ func request_respawn() -> void:
 	# Безопасность: только сервер имеет право перемещать игроков и менять им здоровье
 	if not multiplayer.is_server():
 		return
-	print("respawn")
 	# 1. Сбрасываем здоровье до максимума
 	health = max_health 
 	
@@ -292,17 +293,24 @@ func request_respawn() -> void:
 
 
 # Выполняется на клиенте, который владеет этим персонажем
+# почему-то отрабатывает дважды. Но не сильно важно. Наверное)))
+# вероятно, один раз на сервере, один на клиенте
 @rpc("any_peer", "call_local", "reliable")
 func _reset_player_state(spawn_position: Vector3) -> void:
-	print("reset")
+	# Включаем обратно обработку физики и видимость
+	process_mode = PROCESS_MODE_INHERIT
+	show()
+	print('reset')
 	# Сбрасываем скорость, чтобы не "лететь" по инерции после возрождения
 	velocity = Vector3.ZERO
 	# Устанавливаем позицию (теперь клиент делает это сам, и синхронизатор не будет спорить)
 	global_position = spawn_position
 	
-	# Включаем обратно обработку физики и видимость
-	process_mode = PROCESS_MODE_INHERIT
-	show()
+	health = max_health 
+	
+	# Даем Godot один физический кадр, чтобы MultiplayerSynchronizer зафиксировал 
+	# новые координаты и не пытался утянуть игрока обратно в точку смерти
+	await get_tree().physics_frame
 
 
 func _die() -> void:

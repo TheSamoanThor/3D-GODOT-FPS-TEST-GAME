@@ -18,6 +18,7 @@ var base_directions : Array[Vector2] = [
 ]
 
 func _ready() -> void:
+	if not is_multiplayer_authority(): return
 	# Насильно сбрасываем позицию самого контейнера в локальный ноль
 	for line in RETICLE_LINES:
 		if line != null:
@@ -26,16 +27,21 @@ func _ready() -> void:
 	queue_redraw()
 
 func _process(delta: float) -> void:
+	if not is_multiplayer_authority(): return
 	if DYNAMIC_RETICLE and PLAYER_CONTROLLER:
 		adjust_reticle_lines(delta)
 
 func _draw():
+	if not is_multiplayer_authority(): 
+		hide()
+		return
 	# Находим реальный центр контейнера на основе его текущих размеров
 	var center_pos = get_rect().size / 2
 	# Рисуем точку строго в вычисленном центре
 	draw_circle(center_pos, DOT_RADIUS, RETICLE_COLOR)
 
 func adjust_reticle_lines(delta: float):
+	if not is_multiplayer_authority(): return
 	if not PLAYER_CONTROLLER:
 		return
 		

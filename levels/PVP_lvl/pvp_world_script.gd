@@ -14,9 +14,11 @@ func _on_host_button_pressed():
 	main_menu.hide()
 	
 	enet_peer.create_server(PORT)
+	
+	enet_peer.peer_connected.connect(add_player)
+	enet_peer.peer_disconnected.connect(remove_player)
+	
 	multiplayer.multiplayer_peer = enet_peer
-	multiplayer.peer_connected.connect(add_player)
-	multiplayer.peer_disconnected.connect(remove_player)
 	
 	add_player(multiplayer.get_unique_id())
 
@@ -37,21 +39,27 @@ func add_player(peer_id: int) -> void:
 	var player_instance = PlayerScene.instantiate()
 	player_instance.name = str(peer_id)
 	
-	player_instance.global_position = get_random_spawn_position()
+	player_instance.set_multiplayer_authority(peer_id)
+	
 	# Добавляем на карту (MultiplayerSpawner автоматически 
 	# создаст его у клиентов относительно указонного в нем пути +-)
 	add_child(player_instance)
 	
-	player_instance.set_multiplayer_authority(peer_id)
+	# ЖЕСТКИЙ ФИКС-КОСТЫЛЬ: Ждем окончания кадра, чтобы MultiplayerSpawner 
+	# успел создать и зарегистрировать этот узел на экране клиента
+	await get_tree().process_frame
 	
-	
+	var spawn_pos = get_random_spawn_position()
+	player_instance._reset_player_state.rpc(spawn_pos)
+
 
 func get_random_spawn_position() -> Vector3:
 	var points = get_tree().get_nodes_in_group("spawn_points")
 	
 	if points.size() > 0:
 		var random_marker = points.pick_random() as Marker3D
-		return random_marker.global_position
+		if random_marker:
+			return random_marker.global_position
 		
 	# Если забыли расставить маркеры, возвращаем нулевые координаты, чтобы не было вылета
 	return Vector3(0, 2.5, 0)

@@ -88,10 +88,6 @@ particles_anim_loop = false
 material = SubResource("StandardMaterial3D_4rwgj")
 size = Vector2(0.05, 0.05)
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_55bfu"]
-height = 0.5
-radius = 0.15
-
 [node name="Weapon" type="Node3D" unique_id=1240987764]
 transform = Transform3D(-3, 0, -2.6226832e-07, 0, 3, 0, 2.6226832e-07, 0, -3, 0.3, -0.03, -0.34)
 script = ExtResource("1_mjb0j")
@@ -140,12 +136,3 @@ one_shot = true
 explosiveness = 0.95
 process_material = SubResource("ParticleProcessMaterial_7y78o")
 draw_pass_1 = SubResource("QuadMesh_7y78o")
-
-[node name="MeleeArea" type="Area3D" parent="." unique_id=391557075]
-unique_name_in_owner = true
-collision_layer = 0
-monitorable = false
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="MeleeArea" unique_id=1000586068]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0)
-shape = SubResource("CylinderShape3D_55bfu")

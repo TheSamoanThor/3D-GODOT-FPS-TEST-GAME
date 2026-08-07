@@ -22,7 +22,7 @@ signal weapon_fired
 @onready var weapon_shadow : MeshInstance3D = %WeaponShadow
 @onready var muzzle_flash_node : Node3D = %MuzzleFlash
 @onready var muzzle_light : OmniLight3D = %OmniLight3D
-@onready var melee_area : Area3D = %MeleeArea
+
 # MUST BE OFF IN THE SCENE TO AVOID UNNECESSARY LIGHT IN THE START OF LEVEL
 @export var current_weapon_path: String = "res://Meshes/Weapons/Ranged/Colt1911/Colt1911Resource.tres":
 	set(value):
@@ -92,6 +92,16 @@ func load_weapon() -> void:
 	muzzle_flash_node.position = WEAPON_TYPE.muzzle_flash_position
 	# Меняем цвет источника света
 	muzzle_light.light_color = WEAPON_TYPE.muzzle_flash_color
+	
+	# НАСТРОЙКА ОПТИМИЗАЦИИ СЛОЕВ:
+	if is_multiplayer_authority():
+		# Моё собственное оружие рендерится на Layer 2 (Оружие от 1-го лица)
+		# Твоя WeaponCamera должна видеть ТОЛЬКО Layer 2, а MainCamera должна его игнорировать
+		weapon_mesh.layers = 2 
+	else:
+		# Чужое оружие рендерится на стандартном Layer 1 (Мир)
+		# Чтобы все видели эту пушку со стороны в руках врага
+		weapon_mesh.layers = 1
 
 
 func sway_weapon(delta, isIdle: bool) -> void:
@@ -242,29 +252,46 @@ func _attack() -> void:
 			bullet.look_at(bullet.global_position + final_direction)
 
 	if WEAPON_TYPE.isMelee:
+		var camera = global.player.CAMERA_CONTROLLER
+		var space_state = camera.get_world_3d().direct_space_state
+		
+		# Берем центр видимой игровой области, а не физического окна
+		var screen_center = get_viewport().get_visible_rect().size / 2
+		
+		var origin = camera.project_ray_origin(screen_center)
+		var end = origin + camera.project_ray_normal(screen_center) * WEAPON_TYPE.range
 		if WEAPON_TYPE.isArealMelee:
-			# Собираем всех врагов, которые оказались внутри зоны в этот момент
-			var targets = melee_area.get_overlapping_bodies()
+			var query = PhysicsShapeQueryParameters3D.new()
 			
-			for body in targets:
-				# Игнорируем самого себя
-				#if body == global.player or body.get_rid() == global.player.get_rid():
-					#continue
-				if body.has_method("recieve_damage"):
-					body.recieve_damage.rpc_id(body.get_multiplayer_authority(), WEAPON_TYPE.damage)
+			# Создаем невидимую сферу радиусом 0.8 метра для детекции по площади
+			var sphere = SphereShape3D.new()
+			sphere.radius = 0.8
+			
+			query.shape_rid = sphere.get_rid()
+			# Формируем траекторию движения этой сферы (от лица вперед на длину range)
+			query.transform = Transform3D(Basis(), origin)
+			query.motion = (end - origin)
+			query.collide_with_bodies = true
+			query.exclude = [global.player.get_rid()] # Исключаем себя
+			
+			var results = space_state.intersect_shape(query)
+			
+			# Массив для защиты от повторного нанесения урона одной жертве за один взмах
+			var hit_targets = []
+			
+			for hit in results:
+				var body = hit.get("collider")
+				if body and not body in hit_targets:
+					hit_targets.append(body)
+					
+					if body.has_method("recieve_damage"):
+						body.recieve_damage.rpc_id(body.get_multiplayer_authority(), WEAPON_TYPE.damage)
+					
 				# Спавним искры или кровь в точке соприкосновения
-				# (Для Area3D точную точку можно взять как global_position врага)
-				_bullet_hole.rpc(body.global_position, Vector3.UP) # doesnt work :/
+				_bullet_hole.rpc(body.global_position, Vector3.UP)
+				# работает, но не в месте удара
+		
 		elif not WEAPON_TYPE.isArealMelee:
-			var camera = global.player.CAMERA_CONTROLLER
-			var space_state = camera.get_world_3d().direct_space_state
-			
-			# Берем центр видимой игровой области, а не физического окна
-			var screen_center = get_viewport().get_visible_rect().size / 2
-			
-			var origin = camera.project_ray_origin(screen_center)
-			var end = origin + camera.project_ray_normal(screen_center) * WEAPON_TYPE.range
-			
 			var query = PhysicsRayQueryParameters3D.create(origin, end)
 			query.collide_with_bodies = true
 			
