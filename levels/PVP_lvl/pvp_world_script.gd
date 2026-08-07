@@ -2,8 +2,8 @@ extends Node
 
 signal exit()
 
-@onready var main_menu = $CanvasLayer/MainMenu
-@onready var address_entry = $CanvasLayer/MainMenu/MarginContainer/VBoxContainer/AddressEntry
+@onready var main_menu = $Menu/MainMenu
+@onready var address_entry = $Menu/MainMenu/MarginContainer/VBoxContainer/AddressEntry
 
 const PlayerScene = preload("res://Controllers/PlayerScene.tscn")
 const PORT = 9999
