@@ -1,0 +1,220 @@
+[gd_scene format=3 uid="uid://b7yetgdj40qen"]
+
+[ext_resource type="Script" uid="uid://c2083c7wo4a1h" path="res://Levels/main.gd" id="1_oj8hd"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nj2yk"]
+bg_color = Color(0.0885599, 0.08855992, 0.08855986, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_oj8hd"]
+bg_color = Color(0.2520276, 0.25202766, 0.25202754, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gnif3"]
+bg_color = Color(0.3779188, 0.3779189, 0.37791875, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lwy2l"]
+bg_color = Color(0.5014065, 0.50140655, 0.50140643, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7pswh"]
+bg_color = Color(0.2509804, 0.2509804, 0.2509804, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[node name="main" type="Node" unique_id=1256534966]
+script = ExtResource("1_oj8hd")
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=2115976477]
+unique_name_in_owner = true
+
+[node name="PanelContainer" type="PanelContainer" parent="UI" unique_id=118907071]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_nj2yk")
+
+[node name="MainMenuScreen" type="Control" parent="UI/PanelContainer" unique_id=727211253]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/PanelContainer/MainMenuScreen" unique_id=216476912]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 50
+theme_override_constants/margin_top = 50
+theme_override_constants/margin_right = 50
+theme_override_constants/margin_bottom = 50
+
+[node name="MainMenuBtns" type="Control" parent="UI/PanelContainer/MainMenuScreen/MarginContainer" unique_id=875451104]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/PanelContainer/MainMenuScreen/MarginContainer/MainMenuBtns" unique_id=541982406]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -100.0
+offset_right = 400.0
+offset_bottom = 100.0
+grow_vertical = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+theme_override_constants/separation = 25
+
+[node name="Play" type="Button" parent="UI/PanelContainer/MainMenuScreen/MarginContainer/MainMenuBtns/VBoxContainer" unique_id=973736184]
+custom_minimum_size = Vector2(250, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_oj8hd")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_gnif3")
+theme_override_styles/hover = SubResource("StyleBoxFlat_lwy2l")
+text = "Play"
+
+[node name="Options" type="Button" parent="UI/PanelContainer/MainMenuScreen/MarginContainer/MainMenuBtns/VBoxContainer" unique_id=428555123]
+custom_minimum_size = Vector2(250, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_oj8hd")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_gnif3")
+theme_override_styles/hover = SubResource("StyleBoxFlat_lwy2l")
+text = "Options"
+
+[node name="Exit" type="Button" parent="UI/PanelContainer/MainMenuScreen/MarginContainer/MainMenuBtns/VBoxContainer" unique_id=1800027788]
+custom_minimum_size = Vector2(250, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_oj8hd")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_gnif3")
+theme_override_styles/hover = SubResource("StyleBoxFlat_lwy2l")
+text = "Exit"
+
+[node name="ModeMenuBtns" type="Control" parent="UI/PanelContainer/MainMenuScreen/MarginContainer" unique_id=777310827]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/PanelContainer/MainMenuScreen/MarginContainer/ModeMenuBtns" unique_id=1745980664]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -100.0
+offset_right = 400.0
+offset_bottom = 100.0
+grow_vertical = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+theme_override_constants/separation = 25
+
+[node name="MultiplayerBtn" type="Button" parent="UI/PanelContainer/MainMenuScreen/MarginContainer/ModeMenuBtns/VBoxContainer" unique_id=1943651030]
+custom_minimum_size = Vector2(250, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_oj8hd")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_gnif3")
+theme_override_styles/hover = SubResource("StyleBoxFlat_lwy2l")
+text = "Multiplayer"
+
+[node name="SingleplayerBtn" type="Button" parent="UI/PanelContainer/MainMenuScreen/MarginContainer/ModeMenuBtns/VBoxContainer" unique_id=1612619054]
+custom_minimum_size = Vector2(250, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_oj8hd")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_gnif3")
+theme_override_styles/hover = SubResource("StyleBoxFlat_lwy2l")
+text = "Singleplayer"
+
+[node name="BackBtn" type="Button" parent="UI/PanelContainer/MainMenuScreen/MarginContainer/ModeMenuBtns/VBoxContainer" unique_id=898499144]
+custom_minimum_size = Vector2(250, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_oj8hd")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_gnif3")
+theme_override_styles/hover = SubResource("StyleBoxFlat_lwy2l")
+text = "Back"
+
+[node name="ConnectionMenuBtns" type="Control" parent="UI/PanelContainer/MainMenuScreen/MarginContainer" unique_id=2110989311]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/PanelContainer/MainMenuScreen/MarginContainer/ConnectionMenuBtns" unique_id=620317240]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -133.5
+offset_right = 400.0
+offset_bottom = 133.5
+grow_vertical = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+theme_override_constants/separation = 25
+
+[node name="HostBtn" type="Button" parent="UI/PanelContainer/MainMenuScreen/MarginContainer/ConnectionMenuBtns/VBoxContainer" unique_id=242927712]
+custom_minimum_size = Vector2(250, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_oj8hd")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_gnif3")
+theme_override_styles/hover = SubResource("StyleBoxFlat_lwy2l")
+text = "Host"
+
+[node name="JoinBtn" type="Button" parent="UI/PanelContainer/MainMenuScreen/MarginContainer/ConnectionMenuBtns/VBoxContainer" unique_id=556524273]
+custom_minimum_size = Vector2(250, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_oj8hd")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_gnif3")
+theme_override_styles/hover = SubResource("StyleBoxFlat_lwy2l")
+text = "Join"
+
+[node name="AddressEntry" type="LineEdit" parent="UI/PanelContainer/MainMenuScreen/MarginContainer/ConnectionMenuBtns/VBoxContainer" unique_id=1523446110]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.875, 0.875, 0.875, 1)
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_7pswh")
+placeholder_text = "Enter addres to join here"
+alignment = 1
+
+[node name="BackBtn" type="Button" parent="UI/PanelContainer/MainMenuScreen/MarginContainer/ConnectionMenuBtns/VBoxContainer" unique_id=2032654759]
+custom_minimum_size = Vector2(250, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_oj8hd")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_gnif3")
+theme_override_styles/hover = SubResource("StyleBoxFlat_lwy2l")
+text = "Back"
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="." unique_id=651176562]
+_spawnable_scenes = PackedStringArray("uid://bq8ow52131jdw")
+spawn_path = NodePath(".")
