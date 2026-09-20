@@ -29,13 +29,17 @@ func _ready() -> void:
 
 	# Автоматически сканируем папки уровней
 	_build_levels_menu()
+	
+	var scroll = levels_menu_btns.get_node("MainVerticalLayout/ScrollContainer")
+	if scroll:
+		scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 
-# 1. РЕКУРСИВНОЕ СКАНЕН И ЗАПОЛНЕНИЕ МЕНЮ (Работает идеально)
 func _build_levels_menu() -> void:
-	var container = levels_menu_btns.get_node("VBoxContainer")
+	var container = levels_menu_btns.get_node("MainVerticalLayout/ScrollContainer/LevelListContainer")
+	
+	# Очищаем старые кнопки уровней (кнопка Back лежит в MainVerticalLayout, её мы не тронем)
 	for child in container.get_children():
-		if not child.name.begins_with("System"):
-			child.queue_free()
+		child.queue_free()
 	
 	var base_levels_dir = "res://Levels/"
 	_scan_dir_recursive(base_levels_dir, container)
@@ -63,22 +67,39 @@ func _scan_dir_recursive(path: String, container: Node) -> void:
 					
 		file_name = dir.get_next()
 
+
 func _create_level_button(file_name: String, full_path: String, container: Node) -> void:
 	var btn = Button.new()
 	btn.text = file_name.get_basename().replace("_", " ")
-	btn.custom_minimum_size = Vector2(250, 50)
+	btn.custom_minimum_size = Vector2(400, 50)
 	
+	# СТИЛИЗАЦИЯ ИЗ КОДА: 
+	# Вытаскиваем StyleBox'ы из твоей уже настроенной кнопки "Play" (которая лежит в MainMenu)
+	var sample_btn = %MainMenuBtns.get_node("VBoxContainer/Play") as Button
+	if sample_btn:
+		# Копируем шрифты, цвета и тему оформления
+		btn.theme_type_variation = sample_btn.theme_type_variation
+		btn.add_theme_color_override("font_color", sample_btn.get_theme_color("font_color", "Button"))
+		btn.add_theme_font_size_override("font_size", sample_btn.get_theme_font_size("font_size", "Button"))
+		
+		# Копируем состояния StyleBox (Normal, Pressed, Hover)
+		btn.add_theme_stylebox_override("normal", sample_btn.get_theme_stylebox("normal", "Button"))
+		btn.add_theme_stylebox_override("pressed", sample_btn.get_theme_stylebox("pressed", "Button"))
+		btn.add_theme_stylebox_override("hover", sample_btn.get_theme_stylebox("hover", "Button"))
+	
+	# Логика нажатия
 	btn.pressed.connect(func(): 
 		selected_level_path = full_path
 		print("Игрок выбрал карту по пути: ", selected_level_path)
 		_start_selected_game()
 	)
+	
 	container.add_child(btn)
 	
 	if selected_level_path == "":
 		selected_level_path = full_path
 
-# 2. ЛОГИКА ИНТЕРФЕЙСА КНОПОК
+
 func _on_play_pressed() -> void:
 	main_menu_buttons.hide()
 	mode_menu_buttons.show()

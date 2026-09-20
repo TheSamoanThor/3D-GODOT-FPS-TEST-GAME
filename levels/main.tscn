@@ -64,6 +64,7 @@ theme_override_constants/margin_bottom = 50
 
 [node name="MainMenuBtns" type="Control" parent="UI/PanelContainer/MainMenuScreen/MarginContainer" unique_id=875451104]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="UI/PanelContainer/MainMenuScreen/MarginContainer/MainMenuBtns" unique_id=541982406]
@@ -112,6 +113,7 @@ text = "Exit"
 
 [node name="ModeMenuBtns" type="Control" parent="UI/PanelContainer/MainMenuScreen/MarginContainer" unique_id=777310827]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="UI/PanelContainer/MainMenuScreen/MarginContainer/ModeMenuBtns" unique_id=1745980664]
@@ -160,6 +162,7 @@ text = "Back"
 
 [node name="ConnectionMenuBtns" type="Control" parent="UI/PanelContainer/MainMenuScreen/MarginContainer" unique_id=2110989311]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="UI/PanelContainer/MainMenuScreen/MarginContainer/ConnectionMenuBtns" unique_id=620317240]
@@ -220,7 +223,7 @@ unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="UI/PanelContainer/MainMenuScreen/MarginContainer/LevelsMenuBtns" unique_id=1953870940]
+[node name="MainVerticalLayout" type="VBoxContainer" parent="UI/PanelContainer/MainMenuScreen/MarginContainer/LevelsMenuBtns" unique_id=1953870940]
 custom_minimum_size = Vector2(400, 0)
 layout_mode = 1
 anchors_preset = 4
@@ -235,7 +238,16 @@ size_flags_vertical = 4
 mouse_filter = 2
 theme_override_constants/separation = 25
 
-[node name="SystemBackBtn" type="Button" parent="UI/PanelContainer/MainMenuScreen/MarginContainer/LevelsMenuBtns/VBoxContainer" unique_id=1979945829]
+[node name="ScrollContainer" type="ScrollContainer" parent="UI/PanelContainer/MainMenuScreen/MarginContainer/LevelsMenuBtns/MainVerticalLayout" unique_id=1106227624]
+custom_minimum_size = Vector2(400, 350)
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="LevelListContainer" type="VBoxContainer" parent="UI/PanelContainer/MainMenuScreen/MarginContainer/LevelsMenuBtns/MainVerticalLayout/ScrollContainer" unique_id=673658018]
+layout_mode = 2
+theme_override_constants/separation = 25
+
+[node name="SystemBackBtn" type="Button" parent="UI/PanelContainer/MainMenuScreen/MarginContainer/LevelsMenuBtns/MainVerticalLayout" unique_id=1979945829]
 custom_minimum_size = Vector2(250, 50)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
@@ -257,4 +269,4 @@ spawn_path = NodePath(".")
 [connection signal="pressed" from="UI/PanelContainer/MainMenuScreen/MarginContainer/ConnectionMenuBtns/VBoxContainer/HostBtn" to="." method="_on_host_pressed"]
 [connection signal="pressed" from="UI/PanelContainer/MainMenuScreen/MarginContainer/ConnectionMenuBtns/VBoxContainer/JoinBtn" to="." method="_on_join_pressed"]
 [connection signal="pressed" from="UI/PanelContainer/MainMenuScreen/MarginContainer/ConnectionMenuBtns/VBoxContainer/BackBtn" to="." method="_on_back_to_mode_pressed"]
-[connection signal="pressed" from="UI/PanelContainer/MainMenuScreen/MarginContainer/LevelsMenuBtns/VBoxContainer/SystemBackBtn" to="." method="_on_back_to_mode_pressed"]
+[connection signal="pressed" from="UI/PanelContainer/MainMenuScreen/MarginContainer/LevelsMenuBtns/MainVerticalLayout/SystemBackBtn" to="." method="_on_back_to_mode_pressed"]

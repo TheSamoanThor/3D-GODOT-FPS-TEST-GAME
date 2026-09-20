@@ -1,5 +1,4 @@
 @tool
-
 class_name WeaponController extends Node3D
 
 signal weapon_fired
@@ -23,14 +22,9 @@ signal weapon_fired
 @onready var muzzle_flash_node : Node3D = %MuzzleFlash
 @onready var muzzle_light : OmniLight3D = %OmniLight3D
 
-#@export var current_weapon_path: String = "res://Meshes/Weapons/Ranged/Colt1911/Colt1911Resource.tres":
-	#set(value):
-		#current_weapon_path = value
-		## Выполняем загрузку ТОЛЬКО если узел полностью готов и добавлен в сцену
-		#if current_weapon_path != "" and is_node_ready():
-			#WEAPON_TYPE = load(current_weapon_path)
-			#load_weapon()
-
+var player_owner: Player = null
+# Добавляем локальную переменную пути для отслеживания изменений в _process
+var current_weapon_path: String = ""
 
 var mouse_movement : Vector2
 var random_sway_x
@@ -48,17 +42,36 @@ var bob_vertical : float = 0.0
 var bullet_scene = preload("res://scripts/Weapons/bullet.tscn")
 
 
+func _ready() -> void:
+	if Engine.is_editor_hint():
+		return
+		
+	# Надежный проход вверх по дереву узлов до тех пор, пока не упремся в класс Player
+	var current_node = get_parent()
+	while current_node != null:
+		if current_node is Player:
+			player_owner = current_node
+			break
+		current_node = current_node.get_parent()
+
+
 func _process(delta: float) -> void:
-	if not is_inside_tree() or multiplayer.multiplayer_peer == null:
+	if Engine.is_editor_hint() or not is_inside_tree() or multiplayer.multiplayer_peer == null:
 		return
 
-	# Единый источник правды: пушка всегда принудительно синхронизирует свой путь
-	# с переменной sync_weapon_path, которая находится в корне игрока (и реплицируется сервером)
-	#var parent_player = owner
-	#if parent_player and "sync_weapon_path" in parent_player:
-		#if current_weapon_path != parent_player.sync_weapon_path:
-			## Меняем строку, что автоматически запустит сеттер set(value) и вызовет load_weapon()
-			#current_weapon_path = parent_player.sync_weapon_path
+	# Проверяем, что игрок-владелец найден и у него есть сетевая переменная пути
+	if player_owner and "sync_weapon_path" in player_owner:
+		if current_weapon_path != player_owner.sync_weapon_path:
+			current_weapon_path = player_owner.sync_weapon_path
+			
+			var weapon_resource = load(current_weapon_path)
+			if weapon_resource:
+				WEAPON_TYPE = weapon_resource
+				load_weapon()
+				
+				# Если пушка принадлежит локальному игроку, обновляем связи
+				if player_owner.is_multiplayer_authority() and player_owner.has_method("_update_states_weapon_link"):
+					player_owner._update_states_weapon_link(self)
 
 
 func _input(event: InputEvent) -> void:
@@ -66,11 +79,12 @@ func _input(event: InputEvent) -> void:
 	if not is_inside_tree() or multiplayer.multiplayer_peer == null or not is_multiplayer_authority(): 
 		return 
 	
+	# Вместо RPC пушки вызываем RPC игрока, так как именно игрок синхронизируется в сети
 	if event.is_action_pressed("weapon1"):
-		_rpc_request_weapon_change.rpc("res://Meshes/Weapons/Ranged/Colt1911/Colt1911Resource.tres")
+		owner.request_weapon_change.rpc("res://Meshes/Weapons/Ranged/Colt1911/Colt1911Resource.tres")
 		
 	if event.is_action_pressed("weapon2"):
-		_rpc_request_weapon_change.rpc("res://Meshes/Weapons/Melee/Crowbar/CrowbarResource.tres")
+		owner.request_weapon_change.rpc("res://Meshes/Weapons/Melee/Crowbar/CrowbarResource.tres")
 	
 	if event is InputEventMouseMotion:
 		mouse_movement = event.relative
@@ -113,39 +127,71 @@ func _rpc_request_attack() -> void:
 		# визуального эффекта выстрела (вспышка, звук, пуля) ВСЕМ клиентам через _rpc_replicate_shot
 		_rpc_replicate_shot.rpc()
 
+#
+#func load_weapon() -> void:
+	## Дополнительный барьер безопасности против Nil-объектов:
+	#if not is_inside_tree() or not has_node("%WeaponMesh") or %WeaponMesh == null:
+		#return
+		#
+	#if WEAPON_TYPE == null:
+		#return
+	#if not has_node("%WeaponMesh") or %WeaponMesh == null:
+		#return
+	#weapon_mesh.mesh = WEAPON_TYPE.mesh # Set weapon mesh
+	#weapon_shadow.mesh = WEAPON_TYPE.mesh
+	#position = WEAPON_TYPE.position # Set wespon position
+	#rotation_degrees = WEAPON_TYPE.rotation # Set weapon rotation
+	#scale = WEAPON_TYPE.scale # Set weapon scale
+	#weapon_shadow.visible = WEAPON_TYPE.shadow # Turn shadow on/off
+	#idle_sway_adjustment = WEAPON_TYPE.idle_sway_adjustment
+	#idle_sway_rotation_strength = WEAPON_TYPE.idle_sway_rotation_strength
+	#random_sway_amount = WEAPON_TYPE.random_sway_amount
+	## Перемещаем узел прямо к дулу конкретной модели
+	#muzzle_flash_node.position = WEAPON_TYPE.muzzle_flash_position
+	## Меняем цвет источника света
+	#muzzle_light.light_color = WEAPON_TYPE.muzzle_flash_color
+	#
+	#if is_multiplayer_authority():
+		## собственное оружие рендерится на Layer 2 (Оружие от 1-го лица)
+		## чужая WeaponCamera должна видеть ТОЛЬКО Layer 2, а MainCamera должна его игнорировать
+		#weapon_mesh.layers = 2 
+		#if has_node("%WeaponShadow"):
+			#weapon_shadow.visible = false # От первого лица тень не нужна
+	#else:
+		## Чужое оружие рендерится на стандартном Layer 1 (Мир)
+		## Чтобы все видели эту пушку со стороны в руках врага
+		#weapon_mesh.layers = 1
+		#if has_node("%WeaponShadow"):
+			#weapon_shadow.visible = WEAPON_TYPE.shadow
+
 
 func load_weapon() -> void:
-	# Дополнительный барьер безопасности против Nil-объектов:
 	if not is_inside_tree() or not has_node("%WeaponMesh") or %WeaponMesh == null:
 		return
 		
 	if WEAPON_TYPE == null:
 		return
-	if not has_node("%WeaponMesh") or %WeaponMesh == null:
-		return
-	weapon_mesh.mesh = WEAPON_TYPE.mesh # Set weapon mesh
+		
+	weapon_mesh.mesh = WEAPON_TYPE.mesh 
 	weapon_shadow.mesh = WEAPON_TYPE.mesh
-	position = WEAPON_TYPE.position # Set wespon position
-	rotation_degrees = WEAPON_TYPE.rotation # Set weapon rotation
-	scale = WEAPON_TYPE.scale # Set weapon scale
-	weapon_shadow.visible = WEAPON_TYPE.shadow # Turn shadow on/off
+	position = WEAPON_TYPE.position 
+	rotation_degrees = WEAPON_TYPE.rotation 
+	scale = WEAPON_TYPE.scale 
+	weapon_shadow.visible = WEAPON_TYPE.shadow 
 	idle_sway_adjustment = WEAPON_TYPE.idle_sway_adjustment
 	idle_sway_rotation_strength = WEAPON_TYPE.idle_sway_rotation_strength
 	random_sway_amount = WEAPON_TYPE.random_sway_amount
-	# Перемещаем узел прямо к дулу конкретной модели
 	muzzle_flash_node.position = WEAPON_TYPE.muzzle_flash_position
-	# Меняем цвет источника света
 	muzzle_light.light_color = WEAPON_TYPE.muzzle_flash_color
 	
-	if is_multiplayer_authority():
-		# собственное оружие рендерится на Layer 2 (Оружие от 1-го лица)
-		# чужая WeaponCamera должна видеть ТОЛЬКО Layer 2, а MainCamera должна его игнорировать
+	# ПРОВЕРКА АВТОРИТЕТА: Нам нужно использовать сетевой авторитет ИГРОКА, а не пушки
+	if player_owner and player_owner.is_multiplayer_authority():
+		# Локальный игрок: рендерим только в WeaponCamera (Layer 2)
 		weapon_mesh.layers = 2 
 		if has_node("%WeaponShadow"):
-			weapon_shadow.visible = false # От первого лица тень не нужна
+			weapon_shadow.visible = false 
 	else:
-		# Чужое оружие рендерится на стандартном Layer 1 (Мир)
-		# Чтобы все видели эту пушку со стороны в руках врага
+		# Чужой клон: рендерим в мир для всех (Layer 1)
 		weapon_mesh.layers = 1
 		if has_node("%WeaponShadow"):
 			weapon_shadow.visible = WEAPON_TYPE.shadow
