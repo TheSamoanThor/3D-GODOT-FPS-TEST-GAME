@@ -26,7 +26,7 @@ func _process(delta: float) -> void:
 	if is_queued_for_deletion() or not is_inside_tree() or not is_instance_valid(self):
 		return
 	
-	if not is_multiplayer_authority():
+	if multiplayer.multiplayer_peer == null or not is_multiplayer_authority(): 
 		return # Выходим, если это чужой игрок на нашем экране
 	
 	if CURR_STATE and is_instance_valid(CURR_STATE):
@@ -35,8 +35,9 @@ func _process(delta: float) -> void:
 			global.debug.add_property("Curr State", CURR_STATE.name, 1)
 
 func _physics_process(delta: float) -> void:
-	if not is_multiplayer_authority():
+	if multiplayer.multiplayer_peer == null or not is_multiplayer_authority(): 
 		return
+
 	CURR_STATE.physics_update(delta)
 
 func on_child_transition(new_state_name: StringName) -> void:

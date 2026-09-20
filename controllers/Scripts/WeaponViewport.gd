@@ -10,9 +10,9 @@ func _ready() -> void:
 	screen_size = get_window().size
 	size = screen_size
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
+
 func _process(delta: float) -> void:
-	if not is_multiplayer_authority(): 
+	if not is_inside_tree() or multiplayer.multiplayer_peer == null or not is_multiplayer_authority(): 
 		return
-	#global_transform = main_camera.global_transform
-	%WeaponRig.global_transform = main_camera.global_transform
+	if has_node("%WeaponRig") and %WeaponRig != null:
+		%WeaponRig.global_transform = main_camera.global_transform

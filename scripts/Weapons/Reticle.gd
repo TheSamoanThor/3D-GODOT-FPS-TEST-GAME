@@ -27,7 +27,9 @@ func _ready() -> void:
 	queue_redraw()
 
 func _process(delta: float) -> void:
-	if not is_multiplayer_authority(): return
+	if not is_inside_tree() or multiplayer.multiplayer_peer == null or not is_multiplayer_authority(): 
+		return
+
 	if DYNAMIC_RETICLE and PLAYER_CONTROLLER:
 		adjust_reticle_lines(delta)
 

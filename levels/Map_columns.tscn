@@ -1,8 +1,7 @@
 [gd_scene format=3 uid="uid://cohh7c24knxjt"]
 
-[ext_resource type="PackedScene" uid="uid://bq8ow52131jdw" path="res://Controllers/PlayerScene.tscn" id="1_i7jyh"]
-[ext_resource type="Script" uid="uid://b4nw6yte5dquf" path="res://Scripts/InteractionComponent.gd" id="2_0tnhd"]
-[ext_resource type="Material" uid="uid://d21ut1mguy7yv" path="res://Materials/Highlight.tres" id="2_i4ppk"]
+[ext_resource type="Material" uid="uid://d21ut1mguy7yv" path="res://Materials/Highlight.tres" id="1_wdxib"]
+[ext_resource type="Script" uid="uid://b4nw6yte5dquf" path="res://Scripts/InteractionComponent.gd" id="2_as664"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_heknc"]
 
@@ -142,8 +141,6 @@ material = SubResource("StandardMaterial3D_8adi3")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1382021477]
 environment = SubResource("Environment_plumh")
-
-[node name="CharacterBody3D" parent="." unique_id=179219016 instance=ExtResource("1_i7jyh")]
 
 [node name="LevelObjects" type="Node3D" parent="." unique_id=1893136362]
 
@@ -287,10 +284,10 @@ shape = SubResource("BoxShape3D_refv5")
 
 [node name="box" type="MeshInstance3D" parent="LevelObjects/Box" unique_id=757299705]
 transform = Transform3D(1.0000001, 0, -7.450581e-09, -1.8544246e-09, 1, 1.748049e-10, -1.4901161e-08, -1.4901161e-08, 1, 0, 0, 0)
-material_overlay = ExtResource("2_i4ppk")
+material_overlay = ExtResource("1_wdxib")
 mesh = SubResource("BoxMesh_yppfu")
 
 [node name="InteractionComponent" type="Node" parent="LevelObjects/Box" unique_id=1806599085 node_paths=PackedStringArray("highlight_mesh")]
-script = ExtResource("2_0tnhd")
+script = ExtResource("2_as664")
 highlight_mesh = NodePath("../box")
 metadata/_custom_type_script = "uid://b4nw6yte5dquf"

@@ -23,14 +23,13 @@ signal weapon_fired
 @onready var muzzle_flash_node : Node3D = %MuzzleFlash
 @onready var muzzle_light : OmniLight3D = %OmniLight3D
 
-# MUST BE OFF IN THE SCENE TO AVOID UNNECESSARY LIGHT IN THE START OF LEVEL
-@export var current_weapon_path: String = "res://Meshes/Weapons/Ranged/Colt1911/Colt1911Resource.tres":
-	set(value):
-		current_weapon_path = value
-		# Выполняем загрузку ТОЛЬКО если узел полностью готов и добавлен в сцену
-		if current_weapon_path != "" and is_node_ready():
-			WEAPON_TYPE = load(current_weapon_path)
-			load_weapon()
+#@export var current_weapon_path: String = "res://Meshes/Weapons/Ranged/Colt1911/Colt1911Resource.tres":
+	#set(value):
+		#current_weapon_path = value
+		## Выполняем загрузку ТОЛЬКО если узел полностью готов и добавлен в сцену
+		#if current_weapon_path != "" and is_node_ready():
+			#WEAPON_TYPE = load(current_weapon_path)
+			#load_weapon()
 
 
 var mouse_movement : Vector2
@@ -49,34 +48,79 @@ var bob_vertical : float = 0.0
 var bullet_scene = preload("res://scripts/Weapons/bullet.tscn")
 
 
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	await owner.ready
-	# Если MultiplayerSynchronizer уже передал путь к оружию к моменту готовности
-	if current_weapon_path != "":
-		WEAPON_TYPE = load(current_weapon_path)
-		load_weapon()
-
-
 func _process(delta: float) -> void:
-	if not is_multiplayer_authority(): return
+	if not is_inside_tree() or multiplayer.multiplayer_peer == null:
+		return
+
+	# Единый источник правды: пушка всегда принудительно синхронизирует свой путь
+	# с переменной sync_weapon_path, которая находится в корне игрока (и реплицируется сервером)
+	#var parent_player = owner
+	#if parent_player and "sync_weapon_path" in parent_player:
+		#if current_weapon_path != parent_player.sync_weapon_path:
+			## Меняем строку, что автоматически запустит сеттер set(value) и вызовет load_weapon()
+			#current_weapon_path = parent_player.sync_weapon_path
 
 
-func _input(event):
-	if not is_multiplayer_authority(): return # Смена только для себя!
+func _input(event: InputEvent) -> void:
+	# Безопасная проверка авторитета (ввод обрабатывает только хозяин персонажа)
+	if not is_inside_tree() or multiplayer.multiplayer_peer == null or not is_multiplayer_authority(): 
+		return 
 	
-	#if event.is_action_pressed("attack"):
-		#_attack.rpc()
 	if event.is_action_pressed("weapon1"):
-		current_weapon_path = "res://Meshes/Weapons/Ranged/Colt1911/Colt1911Resource.tres"
+		_rpc_request_weapon_change.rpc("res://Meshes/Weapons/Ranged/Colt1911/Colt1911Resource.tres")
+		
 	if event.is_action_pressed("weapon2"):
-		current_weapon_path = "res://Meshes/Weapons/Melee/Crowbar/CrowbarResource.tres"
-#	For swaying weapon
+		_rpc_request_weapon_change.rpc("res://Meshes/Weapons/Melee/Crowbar/CrowbarResource.tres")
+	
 	if event is InputEventMouseMotion:
 		mouse_movement = event.relative
 
 
+# Вызывается клиентом, выполняется строго на Сервере
+@rpc("any_peer", "call_local", "reliable")
+func _rpc_request_weapon_change(new_weapon_path: String) -> void:
+	if not multiplayer.is_server():
+		return
+		
+	var sender_id = multiplayer.get_remote_sender_id()
+	var parent_player = owner
+	
+	if parent_player and parent_player.name == str(sender_id):
+		# Сервер меняет строковую переменную в корне. 
+		# MultiplayerSynchronizer автоматически отправит её клиенту.
+		parent_player.sync_weapon_path = new_weapon_path
+		
+		# Заставляем серверный экземпляр этого игрока 
+		# ТОЖЕ вызвать локальную смену оружия, чтобы сервер обновил у себя урон в WEAPON_TYPE!
+		if parent_player.has_method("_apply_weapon_change_locally"):
+			parent_player._apply_weapon_change_locally()
+			
+		print("Сервер авторитетно сменил оружие и урон для игрока ", sender_id, " на: ", new_weapon_path)
+
+
+# Вызывается клиентом (любым), выполняется строго на Сервере
+@rpc("any_peer", "call_local", "reliable")
+func _rpc_request_attack() -> void:
+	if not multiplayer.is_server():
+		return
+		
+	var sender_id = multiplayer.get_remote_sender_id()
+	var parent_player = owner
+	
+	# Проверяем, что стреляет именно тот игрок, который управляет этим телом
+	if parent_player and parent_player.name == str(sender_id):
+		# Сервер сам авторизовал выстрел. Теперь он рассылает команду репликации
+		# визуального эффекта выстрела (вспышка, звук, пуля) ВСЕМ клиентам через _rpc_replicate_shot
+		_rpc_replicate_shot.rpc()
+
+
 func load_weapon() -> void:
+	# Дополнительный барьер безопасности против Nil-объектов:
+	if not is_inside_tree() or not has_node("%WeaponMesh") or %WeaponMesh == null:
+		return
+		
+	if WEAPON_TYPE == null:
+		return
 	if not has_node("%WeaponMesh") or %WeaponMesh == null:
 		return
 	weapon_mesh.mesh = WEAPON_TYPE.mesh # Set weapon mesh
@@ -93,15 +137,18 @@ func load_weapon() -> void:
 	# Меняем цвет источника света
 	muzzle_light.light_color = WEAPON_TYPE.muzzle_flash_color
 	
-	# НАСТРОЙКА ОПТИМИЗАЦИИ СЛОЕВ:
 	if is_multiplayer_authority():
-		# Моё собственное оружие рендерится на Layer 2 (Оружие от 1-го лица)
-		# Твоя WeaponCamera должна видеть ТОЛЬКО Layer 2, а MainCamera должна его игнорировать
+		# собственное оружие рендерится на Layer 2 (Оружие от 1-го лица)
+		# чужая WeaponCamera должна видеть ТОЛЬКО Layer 2, а MainCamera должна его игнорировать
 		weapon_mesh.layers = 2 
+		if has_node("%WeaponShadow"):
+			weapon_shadow.visible = false # От первого лица тень не нужна
 	else:
 		# Чужое оружие рендерится на стандартном Layer 1 (Мир)
 		# Чтобы все видели эту пушку со стороны в руках врага
 		weapon_mesh.layers = 1
+		if has_node("%WeaponShadow"):
+			weapon_shadow.visible = WEAPON_TYPE.shadow
 
 
 func sway_weapon(delta, isIdle: bool) -> void:
@@ -166,7 +213,14 @@ func _weapon_bob(delta, bob_speed: float, horis_bob_amount: float, vertic_bob_am
 	weapon_bob_amount.y = abs(cos(time * bob_speed) * vertic_bob_amount)
 
 
-@rpc("call_local")
+# Этот метод вызывается Сервером и выполняется на ВСЕХ клиентах ("any_peer")
+@rpc("any_peer", "call_local", "reliable")
+func _rpc_replicate_shot() -> void:
+	# Вызываем оригинальный локальный метод атаки. 
+	# Он выполнит физический спавн пули и вызовет weapon_fired.emit() для вспышки дула
+	_attack()
+
+
 func _attack() -> void:
 	if not is_multiplayer_authority():
 		return

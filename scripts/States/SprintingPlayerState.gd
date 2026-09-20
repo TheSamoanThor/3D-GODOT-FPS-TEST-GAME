@@ -11,6 +11,7 @@ class_name SprintingPlayerState extends PlayerMovementState
 
 
 func enter(previous_state) -> void:
+	super(previous_state)
 	WEAPON.bob_speed = WEAPON_BOB_SPD
 	WEAPON.bob_horizontal = WEAPON_BOB_HORIS
 	WEAPON.bob_vertical = WEAPON_BOB_VERT

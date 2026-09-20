@@ -11,6 +11,7 @@ var current_jump_count : int = 0
 
 
 func enter(previous_state) -> void:
+	super(previous_state)
 	# Reset the counter and perform the first initial jump
 	current_jump_count = 1
 	ANIMATION.play("jumpStart")

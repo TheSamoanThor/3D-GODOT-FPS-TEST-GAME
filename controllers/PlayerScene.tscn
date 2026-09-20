@@ -477,9 +477,9 @@ properties/1/replication_mode = 1
 properties/2/path = NodePath("CameraController:rotation")
 properties/2/spawn = true
 properties/2/replication_mode = 1
-properties/3/path = NodePath("CameraController/Recoil/SubViewportContainer/SubViewport/WeaponCameraController/WeaponCamera/WeaponRig/Weapon:current_weapon_path")
+properties/3/path = NodePath(".:sync_weapon_path")
 properties/3/spawn = true
-properties/3/replication_mode = 1
+properties/3/replication_mode = 2
 
 [node name="CharacterBody3D" type="CharacterBody3D" unique_id=179219016 node_paths=PackedStringArray("CAMERA_CONTROLLER", "ANIMATIONPLAYER", "CROUCH_SHAPECAST", "WEAPON_CONTROLLER")]
 collision_layer = 2

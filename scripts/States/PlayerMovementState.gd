@@ -19,6 +19,12 @@ func _ready() -> void:
 	WEAPON = PLAYER.WEAPON_CONTROLLER
 
 
+func enter(previous_state) -> void:
+	# Всегда обновляем ссылку на актуальный контроллер оружия при смене состояний
+	if PLAYER and PLAYER.WEAPON_CONTROLLER:
+		WEAPON = PLAYER.WEAPON_CONTROLLER
+
+
 # Helper to process coyote time ticks
 func process_coyote_time(delta: float) -> void:
 	if PLAYER.is_on_floor():

@@ -215,6 +215,46 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_gnif3")
 theme_override_styles/hover = SubResource("StyleBoxFlat_lwy2l")
 text = "Back"
 
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="." unique_id=651176562]
+[node name="LevelsMenuBtns" type="Control" parent="UI/PanelContainer/MainMenuScreen/MarginContainer" unique_id=1685236426]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/PanelContainer/MainMenuScreen/MarginContainer/LevelsMenuBtns" unique_id=1953870940]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -133.5
+offset_right = 400.0
+offset_bottom = 133.5
+grow_vertical = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_constants/separation = 25
+
+[node name="SystemBackBtn" type="Button" parent="UI/PanelContainer/MainMenuScreen/MarginContainer/LevelsMenuBtns/VBoxContainer" unique_id=1979945829]
+custom_minimum_size = Vector2(250, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_oj8hd")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_gnif3")
+theme_override_styles/hover = SubResource("StyleBoxFlat_lwy2l")
+text = "Back"
+
+[node name="GlobalPlayerSpawner" type="MultiplayerSpawner" parent="." unique_id=5472883]
 _spawnable_scenes = PackedStringArray("uid://bq8ow52131jdw")
 spawn_path = NodePath(".")
+
+[connection signal="pressed" from="UI/PanelContainer/MainMenuScreen/MarginContainer/MainMenuBtns/VBoxContainer/Play" to="." method="_on_play_pressed"]
+[connection signal="pressed" from="UI/PanelContainer/MainMenuScreen/MarginContainer/MainMenuBtns/VBoxContainer/Exit" to="." method="_on_exit_pressed"]
+[connection signal="pressed" from="UI/PanelContainer/MainMenuScreen/MarginContainer/ModeMenuBtns/VBoxContainer/MultiplayerBtn" to="." method="_on_multiplayer_selected"]
+[connection signal="pressed" from="UI/PanelContainer/MainMenuScreen/MarginContainer/ModeMenuBtns/VBoxContainer/SingleplayerBtn" to="." method="_on_singleplayer_selected"]
+[connection signal="pressed" from="UI/PanelContainer/MainMenuScreen/MarginContainer/ModeMenuBtns/VBoxContainer/BackBtn" to="." method="_show_main_menu"]
+[connection signal="pressed" from="UI/PanelContainer/MainMenuScreen/MarginContainer/ConnectionMenuBtns/VBoxContainer/HostBtn" to="." method="_on_host_pressed"]
+[connection signal="pressed" from="UI/PanelContainer/MainMenuScreen/MarginContainer/ConnectionMenuBtns/VBoxContainer/JoinBtn" to="." method="_on_join_pressed"]
+[connection signal="pressed" from="UI/PanelContainer/MainMenuScreen/MarginContainer/ConnectionMenuBtns/VBoxContainer/BackBtn" to="." method="_on_back_to_mode_pressed"]
+[connection signal="pressed" from="UI/PanelContainer/MainMenuScreen/MarginContainer/LevelsMenuBtns/VBoxContainer/SystemBackBtn" to="." method="_on_back_to_mode_pressed"]

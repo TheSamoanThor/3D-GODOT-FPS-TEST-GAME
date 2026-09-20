@@ -20,6 +20,15 @@ class_name Player extends CharacterBody3D
 @export var health : int = 3
 
 
+@export var sync_weapon_path: String = "res://Meshes/Weapons/Ranged/Colt1911/Colt1911Resource.tres":
+	set(value):
+		sync_weapon_path = value
+		# Если игрок уже на карте и пушка создана — мгновенно применяем изменения
+		if is_node_ready() and WEAPON_CONTROLLER != null:
+			_apply_weapon_change_locally()
+
+
+
 var is_grappling : bool = false
 var grapple_target_point : Vector3
 
@@ -55,8 +64,10 @@ func _input(event: InputEvent) -> void:
 		get_tree().quit()
 	if event.is_action_pressed("interact"):
 		interact()
+	# Находим этот кусок в func _input(event) в FpsControls.gd:
 	if event.is_action_pressed("attack"):
-		WEAPON_CONTROLLER._attack.rpc()
+		# Просим сервер выполнить атаку (вместо call_local шлем запрос на сервер)
+		WEAPON_CONTROLLER._rpc_request_attack.rpc()
 	if event.is_action_pressed("special_ability") and can_grapple:
 		grapple()
 
@@ -71,7 +82,11 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if not is_multiplayer_authority(): return
+	if not is_inside_tree() or multiplayer.multiplayer_peer == null:
+		return
+	if not is_multiplayer_authority():
+		return
+
 	
 	if global.debug and is_instance_valid(global.debug):
 		global.debug.add_property("RealSpeed", velocity.length(), 1)
@@ -92,7 +107,6 @@ func _physics_process(delta: float) -> void:
 			dissconect_grapple()
 		# В режиме крюка мы игнорируем стандартную гравитацию, чтобы лететь ровно в цель
 	else:
-		# --- СТАНДАРТНАЯ ЛОГИКА ДВИЖЕНИЯ ---
 		update_gravity(delta)
 		# Сюда стейт-машина будет передавать обычный ход (update_input)
 
@@ -119,24 +133,44 @@ func _update_camera():
 
 func _ready() -> void:
 	if not is_multiplayer_authority():
-		# Отключаем камеру оружия и весь WeaponRig для чужих игроков
-		# Укажи точный путь до твоего узла WeaponRig или WeaponViewport
 		%SubViewportContainer.hide() 
-		# Если WeaponRig лежит в камере, выключаем его процесс:
-		%WeaponRig.set_process(false)
-		%WeaponRig.set_physics_process(false)
 		return
 	
 	global.player = self
 	
-	# Wait one frame to let the Compatibility renderer initialize environment maps safely
-	await get_tree().process_frame
+	# Кадр готов, все дочерние элементы (включая пушку) на месте. 
+	# Теперь безопасно применяем оружие, которое прислал синхронизатор:
+	if sync_weapon_path != "":
+		_apply_weapon_change_locally()
 	
+	await get_tree().process_frame
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	if CROUCH_SHAPECAST != null:
 		CROUCH_SHAPECAST.add_exception(self)
 	
 	CAMERA_CONTROLLER.current = true
+
+
+#func _ready() -> void:
+	#if not is_multiplayer_authority():
+		## Отключаем камеру оружия и весь WeaponRig для чужих игроков
+		## Укажи точный путь до твоего узла WeaponRig или WeaponViewport
+		#%SubViewportContainer.hide() 
+		## Если WeaponRig лежит в камере, выключаем его процесс:
+		#%WeaponRig.set_process(false)
+		#%WeaponRig.set_physics_process(false)
+		#return
+	#
+	#global.player = self
+	#
+	## Wait one frame to let the Compatibility renderer initialize environment maps safely
+	#await get_tree().process_frame
+	#
+	#Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	#if CROUCH_SHAPECAST != null:
+		#CROUCH_SHAPECAST.add_exception(self)
+	#
+	#CAMERA_CONTROLLER.current = true
 
 
 func update_gravity(delta: float) -> void:
@@ -165,7 +199,10 @@ func update_velocity() -> void:
 
 
 func _process(delta: float) -> void:
-	if not is_multiplayer_authority(): return
+	if not is_inside_tree() or multiplayer.multiplayer_peer == null:
+		return
+	if not is_multiplayer_authority():
+		return
 	
 	if WEAPON_CONTROLLER == null:
 		return
@@ -321,3 +358,31 @@ func _die() -> void:
 	# Если это наш локальный игрок, просим сервер нас возродить
 	if is_multiplayer_authority():
 		request_respawn.rpc()
+
+
+func _apply_weapon_change_locally() -> void:
+	# Безопасно ищем контроллер оружия, даже если это чужой персонаж
+	var weapon_node = get_node_or_null("CameraController/Recoil/SubViewportContainer/SubViewport/WeaponCameraController/WeaponCamera/WeaponRig/Weapon") as WeaponController
+	
+	if weapon_node == null:
+		# Если узел еще не готов в дереве, подождем один кадр и попробуем снова
+		call_deferred("_apply_weapon_change_locally")
+		return
+		
+	var weapon_resource = load(sync_weapon_path)
+	if weapon_resource == null:
+		print("Ошибка: Не удалось загрузить ресурс оружия по пути: ", sync_weapon_path)
+		return
+		
+	# Записываем ресурс в контроллер оружия текущего экземпляра (неважно, хост это или клиент)
+	weapon_node.WEAPON_TYPE = weapon_resource
+	weapon_node.load_weapon()
+	
+	# Обновляем ссылки во всей стейт-машине данного игрока
+	var state_machine = get_node_or_null("PlayerStateMachine")
+	if state_machine:
+		for child in state_machine.get_children():
+			if "WEAPON" in child:
+				child.WEAPON = weapon_node
+				
+	print("Сетевой Фикс: Игрок [", name, "] обновил визуал оружия. Путь: ", sync_weapon_path, " Локальный Авторитет: ", is_multiplayer_authority())

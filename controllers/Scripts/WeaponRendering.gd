@@ -8,9 +8,9 @@ func _ready() -> void:
 
 # Match Weapon Camera to Player Camera
 func _process(delta: float) -> void:
-	if not is_multiplayer_authority():
+	if not is_inside_tree() or multiplayer.multiplayer_peer == null or not is_multiplayer_authority(): 
 		return # Если это не наш игрок, его пушка не должна следовать за нашей камерой!
-		
+	
 	if MAIN_CAMERA:
 		global_transform = MAIN_CAMERA.global_transform
 		# СИНХРОНИЗАЦИЯ ОРУЖИЯ: Принудительно передаем глобальные координаты 

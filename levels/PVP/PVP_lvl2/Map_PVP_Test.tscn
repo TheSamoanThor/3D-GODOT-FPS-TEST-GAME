@@ -1,0 +1,36 @@
+[gd_scene format=3 uid="uid://cyxopfkansbuj"]
+
+[ext_resource type="PackedScene" uid="uid://cqa7y63p7nd51" path="res://Levels/PVP/PVP_lvl2/pvp_test_map_2_env.tscn" id="2_41lm1"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_7ad4a"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+
+[sub_resource type="Sky" id="Sky_s7ilw"]
+sky_material = SubResource("ProceduralSkyMaterial_7ad4a")
+
+[sub_resource type="Environment" id="Environment_vq0tf"]
+background_mode = 2
+sky = SubResource("Sky_s7ilw")
+tonemap_mode = 2
+
+[node name="World" type="Node" unique_id=2033493810]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1128969137]
+environment = SubResource("Environment_vq0tf")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1096745469]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Spawns" type="Node3D" parent="." unique_id=557378332]
+
+[node name="SpawnPoint" type="Marker3D" parent="Spawns" unique_id=538276610 groups=["spawn_points"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 2.5, 15)
+
+[node name="SpawnPoint2" type="Marker3D" parent="Spawns" unique_id=1734586432 groups=["spawn_points"]]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 15, 2.5, -15)
+
+[node name="LvlOBJ" type="Node3D" parent="." unique_id=128711944]
+
+[node name="PVP_Test_Map2oldBlenderVer" parent="LvlOBJ" unique_id=966650068 instance=ExtResource("2_41lm1")]

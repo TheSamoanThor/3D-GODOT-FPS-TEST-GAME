@@ -10,6 +10,7 @@ class_name SlidingPlayerState extends PlayerMovementState
 
 
 func enter(previous_state) -> void:
+	super(previous_state)
 	set_tilt(PLAYER._current_rotation)
 	
 	# SAFE APPROACH: Dynamically find the track index instead of hardcoding "4"
